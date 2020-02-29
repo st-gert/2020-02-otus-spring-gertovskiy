@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="questionnaireDAO" class="ru.otus.job01.dao.QuestionnaireCsvParser">
+        <constructor-arg name="fileName" value="exam-seasons.csv" />
+        <constructor-arg name="charset" value="windows-1251" />
+        <constructor-arg name="separator" value=";" />
+    </bean>
+
+    <bean id="userInterface" class="ru.otus.job01.ui.UserInterfaceScanner" />
+
+    <bean id="marksCriteria" class="ru.otus.job01.model.dict.MarksCriteria" />
+
+    <bean id="examController" class="ru.otus.job01.service.ExamControllerImpl">
+        <constructor-arg name="questionnaireDAO" ref="questionnaireDAO" />
+        <constructor-arg name="ui" ref="userInterface"/>
+        <constructor-arg name="marksCriteria" ref="marksCriteria"/>
+    </bean>
+
+</beans>
