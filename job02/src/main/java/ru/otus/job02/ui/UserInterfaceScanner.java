@@ -25,8 +25,6 @@ public class UserInterfaceScanner implements UserInterface {
         this.locale = configProps.getLocale();
     }
 
-//    @PostConstruct
-
     private String trans(String code) {
         return ms.getMessage(code, null, locale);
     }

@@ -67,6 +67,7 @@ public class QuestionnaireCsvParser implements QuestionnaireDAO {
     }
 
     // Загрузка строк файла
+    // видимость package - для тестирования
     List<String> loadFile() {
         // определяем имя файла
         int point = fileName.lastIndexOf(".");
@@ -90,6 +91,7 @@ public class QuestionnaireCsvParser implements QuestionnaireDAO {
     }
 
     // Парсим строку и очищаем от пустых токенов
+    // видимость package - для тестирования
     List<String> parseLine(String line) {
         return CSVUtils.parseLine(line, separator)
                 .stream()

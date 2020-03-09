@@ -64,11 +64,9 @@ public class QuestionnaireCsvParserTest {
                 , () -> assertTrue(q.getExamName().contains("Наименование экзамена"))
                 , () -> assertEquals(5, q.getQuestionsAnswerList().size())
                 , () -> assertTrue(q.getQuestionsAnswerList().get(0) instanceof QuestionAnswerString)
-//                , () -> assertEquals(QuestionTypeEnum.STRING, q.getQuestionsAnswerList().get(0).getType())
                 , () -> assertEquals("Question1", q.getQuestionsAnswerList().get(0).getQuestion())
                 , () -> assertEquals("answer1", q.getQuestionsAnswerList().get(0).getCorrectAnswer())
                 , () -> assertTrue(q.getQuestionsAnswerList().get(3) instanceof QuestionAnswerChoice)
-//                , () -> assertEquals(QuestionTypeEnum.CHOICE, q.getQuestionsAnswerList().get(3).getType())
                 , () -> assertEquals(3, ((QuestionAnswerChoice) q.getQuestionsAnswerList().get(3))
                         .getAnswerVariants().size())
         );

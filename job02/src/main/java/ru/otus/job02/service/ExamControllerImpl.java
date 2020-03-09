@@ -31,6 +31,7 @@ public class ExamControllerImpl implements ExamController {
         // Объявляем наименование экзамена
         ui.outputBeginingInfo(questionnaire.getExamName());
         // Задаем вопросы
+        // Тип ? - тип ответа, String  или Integer; поэтому ограничить extends невозможно.
         List<QuestionAnswer<?>> questionsAnswerList = questionnaire.getQuestionsAnswerList();
         int quantity = questionsAnswerList.size();
         int number = 0;
