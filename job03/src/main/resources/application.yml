@@ -1,0 +1,21 @@
+# Exam questions file properties
+file:
+  locale: ru_RU
+  basename: exam-seasons.csv
+  charset: windows-1251
+  delimiter: ;
+
+# Marks criteria (percent)
+criteria:
+  excellent: 100
+  good: 75
+  satisfactory: 50
+
+# Message bundles basename
+spring:
+  messages:
+    basename: bundle
+    encoding: UTF-8
+    fallback-to-system-locale: false
+  main:
+    log-startup-info: false
