@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class ExamControllerTestExt {
+public class ExamControllerExtTest {
 
     @MockBean
     private UserInterface mockUI;
