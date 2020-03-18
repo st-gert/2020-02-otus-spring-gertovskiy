@@ -1,0 +1,6 @@
+"Exam name; ""Exam name"", Наименование экзамена";;;;;;
+Question1; answer1 ;;;;;
+Question2; 1 ;correct;incorrect;incorrect;incorrect;incorrect
+Question3; 2 ;incorrect;correct;incorrect;incorrect;
+Question4; 3 ;incorrect;incorrect;correct;;
+Question5;answer5;;;;;
