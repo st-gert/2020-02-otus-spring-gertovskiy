@@ -13,7 +13,6 @@ import java.util.List;
 class ResultUtil {
 
     private static final String NO_DATA_FOUND =  "Данные не найдены";
-    public static final String CONSTRAINT_ERROR = "Операция запрещена, нарушается целостность данных";
     private static final String DB_ERROR =  "Ошибка базы данных:\n";
 
     <T> Pair<List<T>, String> handleList(List<T> list) {
@@ -23,16 +22,7 @@ class ResultUtil {
     }
 
     String handleInt(int result) {
-        switch (result) {
-            case 1:
-                return null;
-            case 0:
-                return NO_DATA_FOUND;
-            case -1:
-                return CONSTRAINT_ERROR;
-            default:
-                throw new ApplException("Не предусмотренный код возврата операции: " + result);
-        }
+        return result == 0 ? NO_DATA_FOUND : null;
     }
 
     public String handleException(Exception e) {

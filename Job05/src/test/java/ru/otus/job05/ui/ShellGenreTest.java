@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.shell.Input;
 import org.springframework.shell.Shell;
 import ru.otus.job05.dao.GenreDao;
+import ru.otus.job05.exception.ApplDbConstraintException;
 import ru.otus.job05.model.Genre;
 
 import java.util.Collections;
@@ -105,7 +106,7 @@ public class ShellGenreTest {
     @Test
     @Order(3)
     @DisplayName("Update - OK")
-    public void updateOkTest() {
+    public void updateOkTest() throws ApplDbConstraintException {
         // DAO возвращает кол-во записей 1.
         when(mockDao.updateGenre(any())).thenReturn(1);
        // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
@@ -117,7 +118,7 @@ public class ShellGenreTest {
     @Test
     @Order(23)
     @DisplayName("Update - Error")
-    public void updateErrorTest() {
+    public void updateErrorTest() throws ApplDbConstraintException {
         // DAO возвращает кол-во записей 0.
         when(mockDao.updateGenre(any())).thenReturn(0);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
@@ -129,7 +130,7 @@ public class ShellGenreTest {
     @Test
     @Order(33)
     @DisplayName("Update - Exception")
-    public void updateExceptionTest() {
+    public void updateExceptionTest() throws ApplDbConstraintException {
         // DAO выбрасывает Exception.
         when(mockDao.updateGenre(any())).thenThrow(new RuntimeException("DB error"));
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
@@ -139,7 +140,7 @@ public class ShellGenreTest {
     @Test
     @Order(4)
     @DisplayName("Delete - OK")
-    public void deleteOkTest() {
+    public void deleteOkTest() throws ApplDbConstraintException {
         // DAO возвращает кол-во записей 1.
         when(mockDao.deleteGenre(anyLong())).thenReturn(1);
        // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
@@ -151,7 +152,7 @@ public class ShellGenreTest {
     @Test
     @Order(24)
     @DisplayName("Delete - Error")
-    public void deleteErrorTest() {
+    public void deleteErrorTest() throws ApplDbConstraintException {
         // DAO возвращает кол-во записей 0.
         when(mockDao.deleteGenre(anyLong())).thenReturn(0);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
@@ -163,9 +164,9 @@ public class ShellGenreTest {
     @Test
     @Order(25)
     @DisplayName("Delete - Error 2")
-    public void deleteError2Test() {
+    public void deleteError2Test() throws ApplDbConstraintException {
         // DAO возвращает признак нарушения constraint.
-        when(mockDao.deleteGenre(anyLong())).thenReturn(-1);
+        when(mockDao.deleteGenre(anyLong())).thenThrow(new ApplDbConstraintException("Операция запрещена"));
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_DELETE_SHORT)).startsWith("Ошибка").contains("Операция запрещена");
         // До DAO дошло значение 50.
@@ -175,7 +176,7 @@ public class ShellGenreTest {
     @Test
     @Order(34)
     @DisplayName("Delete - Exception")
-    public void deleteExceptionTest() {
+    public void deleteExceptionTest() throws ApplDbConstraintException {
         // DAO выбрасывает Exception.
         when(mockDao.deleteGenre(anyLong())).thenThrow(new RuntimeException("DB error"));
         // Команда (краткая) возвращает пользователю сообщение об ошибке.

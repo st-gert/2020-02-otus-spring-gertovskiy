@@ -7,14 +7,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
-import ru.otus.job05.dao.AuthorDao;
 import ru.otus.job05.dao.BookDao;
-import ru.otus.job05.dao.GenreDao;
 import ru.otus.job05.dao.ext.BookListResultSetExtractor;
 import ru.otus.job05.dao.ext.BookResultSetExtractor;
 import ru.otus.job05.model.Author;
 import ru.otus.job05.model.Book;
-import ru.otus.job05.model.Genre;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,14 +20,12 @@ import java.util.Optional;
 public class BookDaoJdbc implements BookDao {
 
     private final NamedParameterJdbcOperations jdbcOperations;
+    private final BookListResultSetExtractor listExtractor;
+    private final ResultSetExtractor<List<Book>> oneBookExtractor = new BookResultSetExtractor();
 
-    private final AuthorDao authorDao;
-    private final GenreDao genreDao;
-
-    public BookDaoJdbc(NamedParameterJdbcOperations jdbcOperations, AuthorDao authorDao, GenreDao genreDao) {
+    public BookDaoJdbc(NamedParameterJdbcOperations jdbcOperations, BookListResultSetExtractor listExtractor) {
         this.jdbcOperations = jdbcOperations;
-        this.authorDao = authorDao;
-        this.genreDao = genreDao;
+        this.listExtractor = listExtractor;
     }
 
     @Override
@@ -39,7 +34,7 @@ public class BookDaoJdbc implements BookDao {
                 "select b.id, b.title, b.genre_id, ab.author_id" +
                         " from book b" +
                         " join author_book ab on b.id = ab.book_id",
-                new BookListResultSetExtractor(authorDao, genreDao)
+                listExtractor
         );
     }
 
@@ -51,7 +46,7 @@ public class BookDaoJdbc implements BookDao {
                         " join author_book ab on b.id = ab.book_id" +
                         " where b.genre_id = (select g.id from genre g where lower(g.genre_name) = :genre )",
                 new MapSqlParameterSource("genre", genre.toLowerCase()),
-                new BookListResultSetExtractor(authorDao, genreDao)
+                listExtractor
         );
     }
 
@@ -63,12 +58,9 @@ public class BookDaoJdbc implements BookDao {
                         " join author_book ab on b.id = ab.book_id" +
                         " where ab.author_id in (select a.id from author a where lower(a.last_name) = :author)",
                 new MapSqlParameterSource("author", authorLastName.toLowerCase()),
-                new BookListResultSetExtractor(authorDao, genreDao)
+                listExtractor
         );
     }
-
-    // Extractor для одной книги. Возвращается список с одним элементом либо пустой.
-    private ResultSetExtractor<List<Book>> oneBookExtractor = new BookResultSetExtractor();
 
     @Override
     public Optional<Book> getBookById(Long bookId) {
@@ -92,20 +84,6 @@ public class BookDaoJdbc implements BookDao {
     /** @return ID нового объекта.  */
     @Override
     public Long addBook(Book book) {
-        // Разбираемся с жанром
-        Genre genre = book.getGenre();
-        long genreId = genreDao.getGenreByName(genre.getGenreName())
-                .map(Genre::getGenreId)
-                .orElse(genreDao.addGenre(genre));
-        genre.setGenreId(genreId);
-        // Авторы
-        for (Author author : book.getAuthors()) {
-            long author_id = authorDao.getAuthorByName(author)
-                    .map(Author::getAuthorId)
-                    .orElse(authorDao.addAuthor(author));
-            author.setAuthorId(author_id);
-        }
-        // Добавляем книгу
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int n = jdbcOperations.update(
                 "insert into book (title, genre_id) " +
@@ -116,12 +94,7 @@ public class BookDaoJdbc implements BookDao {
                 keyHolder,
                 new String[]{"id"}
         );
-        long book_id;
-        if (n > 0) {
-            book_id = keyHolder.getKey().longValue();
-        } else {
-            return null;
-        }
+        long book_id = keyHolder.getKey().longValue();
         // Добавляем связи с авторами
         for (Author author : book.getAuthors()) {
             jdbcOperations.update(
@@ -131,7 +104,7 @@ public class BookDaoJdbc implements BookDao {
                             .addValue("book_id", book_id)
                             .addValue("author_id", author.getAuthorId())
             );
-        };
+        }
         return book_id;
     }
 
@@ -150,8 +123,7 @@ public class BookDaoJdbc implements BookDao {
     }
 
     /**
-     * @return количество обработанных записей либо признак нарушения d БД Constraints.
-     *      1 - OK, 0 - Данные не найдены, -1 - Операция запрещена, нарушен Constraints.
+     * @return количество обработанных записей: 1 - OK, 0 - данные не найдены.
      */
     @Override
     public int deleteBook(Long bookId) {

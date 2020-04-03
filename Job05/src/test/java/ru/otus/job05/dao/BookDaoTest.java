@@ -8,6 +8,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import ru.otus.job05.dao.ext.BookListResultSetExtractor;
 import ru.otus.job05.dao.impl.AuthorDaoJdbc;
 import ru.otus.job05.dao.impl.BookDaoJdbc;
 import ru.otus.job05.dao.impl.GenreDaoJdbc;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Тест DAO Управление книгами")
 @JdbcTest
-@Import({BookDaoJdbc.class, AuthorDaoJdbc.class, GenreDaoJdbc.class} )
+@Import({BookDaoJdbc.class, AuthorDaoJdbc.class, GenreDaoJdbc.class, BookListResultSetExtractor.class} )
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BookDaoTest {
 
@@ -37,8 +38,9 @@ class BookDaoTest {
 
     private List<Book> approxBooks = Arrays.asList(
             new Book(2L, "Сказка о Тройке", new Genre(1L, "Фантастика"),
-                    Arrays.asList(new Author(1L, "Аркадий", "Стругацкий"),
-                    new Author(2L, "Борис", "Стругацкий"))),
+                    Arrays.asList(
+                            new Author(1L, "Аркадий", "Стругацкий"),
+                            new Author(2L, "Борис", "Стругацкий"))),
             new Book(3L, "Комментарии к пройденному", new Genre(4L, "Дневники"),
                     Collections.singletonList(new Author(2L, "Борис", "Стругацкий"))),
             new Book(4L, "Путешествие Алисы", new Genre(1L, "Фантастика"),
@@ -112,11 +114,11 @@ class BookDaoTest {
 
     @Test
     @Order(20)
-    @DisplayName("Добавить книгу с существующими автором и жанром")
+    @DisplayName("Добавить книгу")
     void addBook() {
         Book book = new Book(null, "Новая книга",
-                new Genre(null, "Детектив"),
-                Collections.singletonList(new Author(null, "Борис", "Акунин")));
+                new Genre(3L, "Детектив"),
+                Collections.singletonList(new Author(6L, "Борис", "Акунин")));
         Long bookId = dao.addBook(book);
         assertThat(bookId).isNotNull().isGreaterThan(99L);
         Optional<Book> newBook = dao.getBookById(bookId);
@@ -126,30 +128,6 @@ class BookDaoTest {
                 , () -> assertEquals(approxBooks.get(3).getGenre(), newBook.get().getGenre())
                 , () -> assertEquals(1, newBook.get().getAuthors().size())
                 , () -> assertEquals(approxBooks.get(3).getAuthors().get(0), newBook.get().getAuthors().get(0))
-        );
-    }
-
-    @Test
-    @Order(21)
-    @DisplayName("Добавить книгу с новыми автором и жанром")
-    void addBookWithNewRelated() {
-        Book book = new Book(null, "Новейшая книга",
-                new Genre(null, "Новый жанр"),
-                Arrays.asList(new Author(null, "Иван", "Иванов"),
-                        new Author(null, "Петр", "Петров")));
-        Long bookId = dao.addBook(book);
-        assertThat(bookId).isNotNull().isGreaterThan(99L);
-        Optional<Book> newBook = dao.getBookById(bookId);
-        assertAll(
-                () -> assertTrue(newBook.isPresent())
-                , () -> assertEquals("Новейшая книга", newBook.get().getTitle())
-                , () -> assertEquals(2, newBook.get().getAuthors().size())
-                , () -> assertTrue(newBook.get().getGenre().getGenreId() >= 100L)
-                , () -> assertTrue(newBook.get().getAuthors().get(0).getAuthorId() >= 100L)
-                , () -> assertTrue(newBook.get().getAuthors().get(1).getAuthorId() >= 100L)
-                , () -> assertEquals("Новый жанр", newBook.get().getGenre().getGenreName())
-                , () -> assertEquals("Иван Иванов", newBook.get().getAuthors().get(0).getFullName())
-                , () -> assertEquals("Петр Петров", newBook.get().getAuthors().get(1).getFullName())
         );
     }
 

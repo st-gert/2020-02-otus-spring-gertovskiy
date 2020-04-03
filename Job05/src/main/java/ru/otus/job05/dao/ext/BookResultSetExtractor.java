@@ -10,14 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Extractor для одной книги.
  * Возвращает список с одним элементом.
- *
- * Не имеет состояний.
- *
  */
 public class BookResultSetExtractor implements ResultSetExtractor<List<Book>> {
 
@@ -37,6 +36,16 @@ public class BookResultSetExtractor implements ResultSetExtractor<List<Book>> {
                     rs.getString("first_name"),
                     rs.getString("last_name")));
         }
+        // сортируем авторов в коллективах авторов, чтобы придать им некий стандартный порядок
+        if (book != null && book.getAuthors().size() > 1) {
+            book.setAuthors(
+                    book.getAuthors()
+                            .stream()
+                            .sorted(Comparator.comparing(Author::getAuthorId))
+                            .collect(Collectors.toList())
+            );
+        }
+        // возвращаем в виде коллекции, т.к. это Extractor
         return Collections.singletonList(book);
     }
 }

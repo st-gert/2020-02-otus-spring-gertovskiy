@@ -1,6 +1,5 @@
 package ru.otus.job05.ui;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -13,16 +12,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.shell.Input;
 import org.springframework.shell.Shell;
 import ru.otus.job05.dao.AuthorDao;
+import ru.otus.job05.exception.ApplDbConstraintException;
 import ru.otus.job05.model.Author;
 
 import java.util.Collections;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -115,7 +113,7 @@ public class ShellAuthorTest {
     @Test
     @Order(3)
     @DisplayName("Update - OK")
-    public void updateOkTest() {
+    public void updateOkTest() throws ApplDbConstraintException {
         // DAO возвращает кол-во записей 1.
         when(mockDao.updateAuthor(any())).thenReturn(1);
        // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
@@ -129,7 +127,7 @@ public class ShellAuthorTest {
     @Test
     @Order(23)
     @DisplayName("Update - Error")
-    public void updateErrorTest() {
+    public void updateErrorTest() throws ApplDbConstraintException {
         // DAO возвращает кол-во записей 0.
         when(mockDao.updateAuthor(any())).thenReturn(0);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
@@ -143,7 +141,7 @@ public class ShellAuthorTest {
     @Test
     @Order(33)
     @DisplayName("Update - Exception")
-    public void updateExceptionTest() {
+    public void updateExceptionTest() throws ApplDbConstraintException {
         // DAO выбрасывает Exception.
         when(mockDao.updateAuthor(any())).thenThrow(new RuntimeException("DB error"));
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
@@ -153,7 +151,7 @@ public class ShellAuthorTest {
     @Test
     @Order(4)
     @DisplayName("Delete - OK")
-    public void deleteOkTest() {
+    public void deleteOkTest() throws ApplDbConstraintException {
         // DAO возвращает кол-во записей 1.
         when(mockDao.deleteAuthor(anyLong())).thenReturn(1);
        // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
@@ -165,7 +163,7 @@ public class ShellAuthorTest {
     @Test
     @Order(24)
     @DisplayName("Delete - Error")
-    public void deleteErrorTest() {
+    public void deleteErrorTest() throws ApplDbConstraintException {
         // DAO возвращает кол-во записей 0.
         when(mockDao.deleteAuthor(anyLong())).thenReturn(0);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
@@ -177,7 +175,7 @@ public class ShellAuthorTest {
     @Test
     @Order(34)
     @DisplayName("Delete - Exception")
-    public void deleteExceptionTest() {
+    public void deleteExceptionTest() throws ApplDbConstraintException {
         // DAO выбрасывает Exception.
         when(mockDao.deleteAuthor(anyLong())).thenThrow(new RuntimeException("DB error"));
         // Команда (краткая) возвращает пользователю сообщение об ошибке.

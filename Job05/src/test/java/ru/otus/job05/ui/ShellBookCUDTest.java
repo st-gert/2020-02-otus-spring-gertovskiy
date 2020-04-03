@@ -1,6 +1,5 @@
 package ru.otus.job05.ui;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -13,9 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.shell.Input;
 import org.springframework.shell.Shell;
+import ru.otus.job05.dao.AuthorDao;
 import ru.otus.job05.dao.BookDao;
+import ru.otus.job05.dao.GenreDao;
 import ru.otus.job05.model.Author;
 import ru.otus.job05.model.Book;
+import ru.otus.job05.model.Genre;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,18 +56,16 @@ public class ShellBookCUDTest {
 
     @MockBean
     private BookDao mockDao;
+    @MockBean
+    private AuthorDao mockDaoAuthor;
+    @MockBean
+    private GenreDao mockDaoGenre;
 
     private List<Book> bookList;
 
     @BeforeEach
     private void init() {
         bookList = testShellUtil.createBookList();
-        bookList.forEach(x -> {
-            x.setBookId(null);
-            x.getGenre().setGenreId(null);
-            x.getAuthors().forEach(a -> a.setAuthorId(null));
-            }
-        );
     }
 
     @Test
@@ -74,13 +73,19 @@ public class ShellBookCUDTest {
     @DisplayName("Create - OK")
     public void addOkTest() {
         // DAO возвращает ID.
+        when(mockDaoAuthor.getAuthorByName(any()))
+                .thenReturn(Optional.of(new Author(1L, "", "")))
+                .thenReturn(Optional.of(new Author(2L, "", "")));
+        when(mockDaoGenre.getGenreByName(any())).thenReturn(Optional.of(new Genre(1L, "")));
         when(mockDao.addBook(any())).thenReturn(10L);
        // Команда (длинная)
         assertThat((String) shell.evaluate(COMMAND_ADD)).isEqualTo("Новый ID: 10");
         // До DAO дошло заданное значение.
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
         verify(mockDao).addBook(captor.capture());
-        assertEquals(bookList.get(0), captor.getValue());
+        Book expectedBook = bookList.get(0);
+        expectedBook.setBookId(null);
+        assertEquals(expectedBook, captor.getValue());
     }
 
     @Test
@@ -94,7 +99,9 @@ public class ShellBookCUDTest {
         // До DAO дошло заданное значение.
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
         verify(mockDao).addBook(captor.capture());
-        assertEquals(bookList.get(1), captor.getValue());
+        Book expectedBook = bookList.get(1);
+        expectedBook.setBookId(null);
+        assertEquals(expectedBook.toString(), captor.getValue().toString());
     }
 
     @Test
@@ -104,6 +111,10 @@ public class ShellBookCUDTest {
         Book book = bookList.get(0);
         book.setBookId(22L);
         // DAO возвращает новый объект.
+        when(mockDaoAuthor.getAuthorByName(any()))
+                .thenReturn(Optional.of(new Author(1L, "", "")))
+                .thenReturn(Optional.of(new Author(2L, "", "")));
+        when(mockDaoGenre.getGenreByName(any())).thenReturn(Optional.of(new Genre(1L, "")));
         when(mockDao.updateBook(any())).thenReturn(Optional.of(book));
         // Команда (длинная) возвращает пользователю ОК.
         assertEquals("OK", shell.evaluate(COMMAND_UPDATE));
@@ -126,7 +137,7 @@ public class ShellBookCUDTest {
         // До DAO дошло заданное значение.
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
         verify(mockDao).updateBook(captor.capture());
-        assertEquals(book, captor.getValue());
+        assertEquals(book.toString(), captor.getValue().toString());
     }
 
     @Test
@@ -159,18 +170,6 @@ public class ShellBookCUDTest {
         when(mockDao.deleteBook(anyLong())).thenReturn(0);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_DELETE_SHORT)).startsWith("Ошибка").contains("Данные не найдены");
-        // До DAO дошло значение 50.
-        verify(mockDao).deleteBook(50L);
-    }
-
-    @Test
-    @Order(25)
-    @DisplayName("Delete - Error2")
-    public void deleteError2Test() {
-        // DAO возвращает признак нарушения constraint.
-        when(mockDao.deleteBook(anyLong())).thenReturn(-1);
-        // Команда (краткая) возвращает пользователю сообщение об ошибке.
-        assertThat((String) shell.evaluate(COMMAND_DELETE_SHORT)).startsWith("Ошибка").contains("Операция запрещена");
         // До DAO дошло значение 50.
         verify(mockDao).deleteBook(50L);
     }

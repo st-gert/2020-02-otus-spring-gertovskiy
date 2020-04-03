@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.otus.job05.dao.GenreDao;
+import ru.otus.job05.exception.ApplDbConstraintException;
 import ru.otus.job05.model.Genre;
 
 import java.util.List;
@@ -81,11 +82,12 @@ public class GenreDaoJdbc implements GenreDao {
     }
 
     /**
-     * @return количество обработанных записей либо признак нарушения d БД Constraints.
-     *      1 - OK, 0 - Данные не найдены, -1 - Операция запрещена, нарушен Constraints.
+     * @param genre измененный объект
+     * @return количество обработанных записей: 1 - OK, 0 - данные не найдены
+     * @throws ApplDbConstraintException операция запрещена, нарушен Constraints
      */
     @Override
-    public int updateGenre(Genre genre) {
+    public int updateGenre(Genre genre) throws ApplDbConstraintException {
         try {
             return jdbcOperations.update(
                     "update genre set genre_name = :genre_name where id = :id",
@@ -94,23 +96,24 @@ public class GenreDaoJdbc implements GenreDao {
                             .addValue("genre_name", genre.getGenreName())
             );
         } catch (DataIntegrityViolationException e) {
-            return -1;
+            throw new ApplDbConstraintException("Операция запрещена, нарушается целостность данных");
         }
     }
 
     /**
-     * @return количество обработанных записей либо признак нарушения d БД Constraints.
-     *      1 - OK, 0 - Данные не найдены, -1 - Операция запрещена, нарушен Constraints.
+     * @param genreId ID объекта
+     * @return количество обработанных записей: 1 - OK, 0 - данные не найдены
+     * @throws ApplDbConstraintException операция запрещена, нарушен Constraints
      */
     @Override
-    public int deleteGenre(Long genreId) {
+    public int deleteGenre(Long genreId) throws ApplDbConstraintException {
         try {
             return jdbcOperations.update(
                     "delete from genre where id = :id",
                     new MapSqlParameterSource("id", genreId)
             );
         } catch (DataIntegrityViolationException e) {
-            return -1;
+            throw new ApplDbConstraintException("Операция запрещена, нарушается целостность данных");
         }
     }
 

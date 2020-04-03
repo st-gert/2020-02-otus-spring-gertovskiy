@@ -26,8 +26,7 @@ public interface BookDao {
     Optional<Book> updateBook(Book book);
 
     /**
-     * @return количество обработанных записей либо признак нарушения d БД Constraints.
-     *      > 0 - OK, ==0 - Данные не найдены, < 0 - Операция запрещена, нарушен Constraints.
+     * @return количество обработанных записей: 1 - OK, 0 - данные не найдены.
      */
     int deleteBook(Long bookId);
 

@@ -5,10 +5,12 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.otus.job05.dao.impl.GenreDaoJdbc;
+import ru.otus.job05.exception.ApplDbConstraintException;
 import ru.otus.job05.model.Genre;
 
 import java.util.List;
@@ -16,8 +18,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Тест DAO Управление лит.жанрами")
@@ -111,8 +115,10 @@ class GenreDaoTest {
     @DisplayName("Изменение жанра")
     void updateGenre() {
         Genre expectedGenre = new Genre(2L, "Женский роман");
-        int n = dao.updateGenre(expectedGenre);
-        assertTrue(n > 0);
+        assertDoesNotThrow(() -> {
+            int n = dao.updateGenre(expectedGenre);
+            assertEquals(1, n);
+        });
         Optional<Genre> genreOptional = dao.getGenreById(2L);
         assertThat(genreOptional)
                 .isPresent()
@@ -125,8 +131,10 @@ class GenreDaoTest {
     @Order(24)
     @DisplayName("Изменение жанра - Error")
     void updateGenreError() {
-        int n = dao.updateGenre(new Genre(-2L, "Мужской роман"));
-        assertEquals(0, n);
+        assertDoesNotThrow(() -> {
+            int n = dao.updateGenre(new Genre(-2L, "Мужской роман"));
+            assertEquals(0, n);
+        });
     }
 
     @Test
@@ -136,11 +144,13 @@ class GenreDaoTest {
         Genre genre = new Genre(null, "Женский роман");
         long id = dao.addGenre(genre);
         Optional<Genre> presentOptional = dao.getGenreById(id);
-        int n = dao.deleteGenre(id);
+        assertDoesNotThrow(() -> {
+            int n = dao.deleteGenre(id);
+            assertEquals(1, n);
+        });
         Optional<Genre> notPresentOptional = dao.getGenreById(id);
         assertAll(
                 () -> assertTrue(id >= 100L)
-                , () -> assertTrue(n > 0)
                 , () -> assertTrue(presentOptional.isPresent())
                 , () -> assertFalse(notPresentOptional.isPresent())
         );
@@ -150,16 +160,18 @@ class GenreDaoTest {
     @Order(25)
     @DisplayName("Удаление жанра - Error")
     void deleteGenreError() {
-        int n = dao.deleteGenre(-2L);
-        assertEquals(0, n);
+        assertDoesNotThrow(() -> {
+            int n = dao.deleteGenre(-2L);
+            assertEquals(0, n);
+        });
     }
 
     @Test
     @Order(35)
     @DisplayName("Удаление жанра - Exception")
     void deleteGenreErrorException() {
-        int n = dao.deleteGenre(2L);
-        assertEquals(-1, n);
+        assertThrows(ApplDbConstraintException.class,
+                () -> dao.deleteGenre(2L));
     }
 
 }

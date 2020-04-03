@@ -5,10 +5,12 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.otus.job05.dao.impl.AuthorDaoJdbc;
+import ru.otus.job05.exception.ApplDbConstraintException;
 import ru.otus.job05.model.Author;
 
 import java.util.List;
@@ -16,8 +18,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Тест DAO Управление авторами")
@@ -113,8 +117,10 @@ public class AuthorDaoTest {
     @DisplayName("Изменение автора")
     void updateAuthor() {
         Author expectedAuthor = new Author(3L, "Илья Арнольдович", "Ильф");
-        int n = dao.updateAuthor(expectedAuthor);
-        assertTrue(n > 0);
+        assertDoesNotThrow(() -> {
+            int n = dao.updateAuthor(expectedAuthor);
+            assertEquals(1, n);
+        });
         Optional<Author> AuthorOptional = dao.getAuthorById(3L);
         assertThat(AuthorOptional)
                 .isPresent()
@@ -127,8 +133,10 @@ public class AuthorDaoTest {
     @Order(24)
     @DisplayName("Изменение автора - Error")
     void updateAuthorError() {
-        int n = dao.updateAuthor(new Author(-1L, "Дарья", "Донцова"));
-        assertEquals(0, n);
+        assertDoesNotThrow(() -> {
+            int n = dao.updateAuthor(new Author(-1L, "Дарья", "Донцова"));
+            assertEquals(0, n);
+        });
     }
 
     @Test
@@ -138,11 +146,13 @@ public class AuthorDaoTest {
         Author Author = new Author(null, "Дарья", "Донцова");
         long id = dao.addAuthor(Author);
         Optional<Author> presentOptional = dao.getAuthorById(id);
-        int n = dao.deleteAuthor(id);
+        assertDoesNotThrow(() -> {
+            int n = dao.deleteAuthor(id);
+            assertEquals(1, n);
+        });
         Optional<Author> notPresentOptional = dao.getAuthorById(id);
         assertAll(
                 () -> assertTrue(id >= 100L)
-                , () -> assertTrue(n > 0)
                 , () -> assertTrue(presentOptional.isPresent())
                 , () -> assertFalse(notPresentOptional.isPresent())
         );
@@ -152,16 +162,18 @@ public class AuthorDaoTest {
     @Order(25)
     @DisplayName("Удаление автора - Error")
     void deleteAuthorError() {
-        int n = dao.deleteAuthor(-2L);
-        assertEquals(0, n);
+        assertDoesNotThrow(() -> {
+            int n = dao.deleteAuthor(-2L);
+            assertEquals(0, n);
+        });
     }
 
     @Test
     @Order(35)
     @DisplayName("Удаление автора - Exception")
     void deleteAuthorErrorException() {
-        int n = dao.deleteAuthor(2L);
-        assertEquals(-1, n);
+        assertThrows(ApplDbConstraintException.class,
+                () -> dao.deleteAuthor(2L));
     }
 
 }

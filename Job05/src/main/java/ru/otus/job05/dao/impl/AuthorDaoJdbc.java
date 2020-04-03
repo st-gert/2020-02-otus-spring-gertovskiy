@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.otus.job05.dao.AuthorDao;
+import ru.otus.job05.exception.ApplDbConstraintException;
 import ru.otus.job05.model.Author;
 
 import java.util.List;
@@ -89,12 +90,14 @@ public class AuthorDaoJdbc implements AuthorDao {
         return keyHolder.getKey().longValue();
     }
 
+
     /**
-     * @return количество обработанных записей либо признак нарушения d БД Constraints.
-     *      1 - OK, 0 - Данные не найдены, -1 - Операция запрещена, нарушен Constraints.
+     * @param author измененный объект
+     * @return количество обработанных записей: 1 - OK, 0 - данные не найдены
+     * @throws ApplDbConstraintException операция запрещена, нарушен Constraints
      */
     @Override
-    public int updateAuthor(Author author) {
+    public int updateAuthor(Author author) throws ApplDbConstraintException {
         try {
             return jdbcOperations.update(
                     "update author set first_name = :first_name, last_name = :last_name " +
@@ -105,23 +108,24 @@ public class AuthorDaoJdbc implements AuthorDao {
                             .addValue("last_name", author.getLastName())
             );
         } catch (DataIntegrityViolationException e) {
-            return -1;
+            throw new ApplDbConstraintException("Операция запрещена, нарушается целостность данных");
         }
     }
 
     /**
-     * @return количество обработанных записей либо признак нарушения d БД Constraints.
-     *      1 - OK, 0 - Данные не найдены, -1 - Операция запрещена, нарушен Constraints.
+     * @param authorId ID объекта
+     * @return количество обработанных записей: 1 - OK, 0 - данные не найдены
+     * @throws ApplDbConstraintException операция запрещена, нарушен Constraints
      */
     @Override
-    public int deleteAuthor(Long authorId) {
+    public int deleteAuthor(Long authorId) throws ApplDbConstraintException {
         try {
             return jdbcOperations.update(
                     "delete from author where id = :id",
                     new MapSqlParameterSource("id", authorId)
             );
         } catch (DataIntegrityViolationException e) {
-            return -1;
+            throw new ApplDbConstraintException("Операция запрещена, нарушается целостность данных");
         }
     }
 

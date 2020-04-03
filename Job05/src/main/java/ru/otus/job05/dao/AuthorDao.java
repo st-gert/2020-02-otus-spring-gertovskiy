@@ -1,5 +1,6 @@
 package ru.otus.job05.dao;
 
+import ru.otus.job05.exception.ApplDbConstraintException;
 import ru.otus.job05.model.Author;
 
 import java.util.List;
@@ -18,15 +19,17 @@ public interface AuthorDao {
     Long addAuthor(Author author);
 
     /**
-     * @return количество обработанных записей либо признак нарушения d БД Constraints.
-     *      > 0 - OK, ==0 - Данные не найдены, < 0 - Операция запрещена, нарушен Constraints.
+     * @param author измененный объект
+     * @return количество обработанных записей: 1 - OK, 0 - данные не найдены
+     * @throws ApplDbConstraintException операция запрещена, нарушен Constraints
      */
-    int updateAuthor(Author author);
+    int updateAuthor(Author author) throws ApplDbConstraintException;
 
     /**
-     * @return количество обработанных записей либо признак нарушения d БД Constraints.
-     *      > 0 - OK, ==0 - Данные не найдены, < 0 - Операция запрещена, нарушен Constraints.
+     * @param authorId ID объекта
+     * @return количество обработанных записей: 1 - OK, 0 - данные не найдены
+     * @throws ApplDbConstraintException операция запрещена, нарушен Constraints
      */
-    int deleteAuthor(Long authorId);
+    int deleteAuthor(Long authorId) throws ApplDbConstraintException;
 
 }
