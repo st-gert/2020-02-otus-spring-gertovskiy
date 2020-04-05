@@ -1,0 +1,14 @@
+spring:
+  main:
+    log-startup-info: false
+    banner-mode: off
+  datasource:
+    url: jdbc:postgresql://localhost:5432/home_library
+    username: postgres
+    password: postgres
+    initialization-mode: always
+    schema: schema.sql
+    data: data.sql
+    hikari:
+      connectionTestQuery: SELECT 1
+
