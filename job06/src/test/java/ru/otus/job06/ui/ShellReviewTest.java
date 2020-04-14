@@ -15,8 +15,6 @@ import ru.otus.job06.model.Review;
 import ru.otus.job06.repository.BookRepository;
 import ru.otus.job06.repository.ReviewRepository;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Тестирование управления отзывами.
- * Прохождения данных по цепочке бинов Shell - Controller - Repository и обратно.
+ * Прохождения данных по цепочке бинов Shell - Controller - Service - Repository и обратно.
  * Ограничить контекст не получается, т.к. для Spring Shell много чего необходимо.
  */
 @DisplayName("Тест команд Spring Shell. Управление отзывами на книги")
@@ -55,13 +53,12 @@ public class ShellReviewTest {
     public void addTest() {
         // Repository возвращает ID.
         Book book = testShellUtil.createBookList().get(0);
-        when(mockBookRepository.getBookById(anyLong())).thenReturn(Optional.of(book));
+        when(mockBookRepository.getBookById(anyLong())).thenReturn(book);
         when(mockRepository.addReview(any())).thenReturn(10L);
         // Команда (длинная)
         assertThat((String) shell.evaluate(COMMAND_ADD)).isEqualTo("Новый ID: 10");
         // До Repository дошло заданное значение.
-        book.addReview("Отзыв");
-        verify(mockRepository).addReview(book);
+        verify(mockRepository).addReview(new Review(null, book, "Отзыв"));
     }
 
     @Test
@@ -70,7 +67,7 @@ public class ShellReviewTest {
     public void updateTest() {
         Book book = testShellUtil.createBookList().get(0);
         Review review = new Review(1L, book, "Отзыв");
-        when(mockRepository.getReviewById(anyLong())).thenReturn(Optional.of(review));
+        when(mockRepository.getReviewById(anyLong())).thenReturn(review);
         // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
         assertEquals("OK", shell.evaluate(COMMAND_UPDATE));
         // До Repository дошли значения из команды.
@@ -81,12 +78,13 @@ public class ShellReviewTest {
     @Order(3)
     @DisplayName("Delete - OK")
     public void deleteOkTest() {
-        // Repository возвращает кол-во записей 1.
-        when(mockRepository.deleteReview(anyLong())).thenReturn(1);
+        Review review = new Review(100L, null, "Отзыв");
+        // Repository возвращает существующий объект.
+        when(mockRepository.getReviewById(anyLong())).thenReturn(review);
         // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
         assertEquals("OK", shell.evaluate(COMMAND_DELETE));
         // До Repository дошло значение 100.
-        verify(mockRepository).deleteReview(100L);
+        verify(mockRepository).deleteReview(review);
     }
 
 }

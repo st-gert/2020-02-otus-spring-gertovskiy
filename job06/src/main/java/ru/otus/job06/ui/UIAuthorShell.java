@@ -3,7 +3,7 @@ package ru.otus.job06.ui;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.otus.job06.service.AuthorController;
+import ru.otus.job06.controller.AuthorController;
 
 @ShellComponent
 public class UIAuthorShell {

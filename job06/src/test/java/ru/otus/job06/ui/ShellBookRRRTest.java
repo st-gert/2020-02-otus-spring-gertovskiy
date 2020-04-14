@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Тестирование чтение списков книг.
- * Прохождения данных по цепочке бинов Shell - Controller - Repository и обратно.
+ * Прохождения данных по цепочке бинов Shell - Controller - Service - Repository и обратно.
  * Ограничить контекст не получается, т.к. для Spring Shell много чего необходимо.
  */
 @DisplayName("Тест команд Spring Shell. Чтение списков книг")

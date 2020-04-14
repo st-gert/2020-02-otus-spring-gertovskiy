@@ -1,4 +1,4 @@
-package ru.otus.job06.service;
+package ru.otus.job06.controller;
 
 import org.apache.commons.lang3.tuple.Pair;
 import ru.otus.job06.model.Genre;

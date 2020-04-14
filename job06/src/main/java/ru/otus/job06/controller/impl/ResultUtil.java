@@ -1,7 +1,9 @@
-package ru.otus.job06.service.impl;
+package ru.otus.job06.controller.impl;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
+import ru.otus.job06.exception.ApplDbConstraintException;
+import ru.otus.job06.exception.ApplDbNoDataFoundtException;
 
 import java.util.List;
 
@@ -12,6 +14,7 @@ import java.util.List;
 class ResultUtil {
 
     private static final String NO_DATA_FOUND =  "Данные не найдены";
+    private static final String CONSTRAINT_ERROR = "Операция запрещена, нарушается целостность данных";
     private static final String DB_ERROR =  "Ошибка базы данных:\n";
 
     <T> Pair<List<T>, String> handleList(List<T> list) {
@@ -25,7 +28,13 @@ class ResultUtil {
     }
 
     public String handleException(Exception e) {
-        return DB_ERROR + e.getMessage();
+        if (e instanceof ApplDbNoDataFoundtException) {
+            return NO_DATA_FOUND;
+        } else if (e instanceof ApplDbConstraintException) {
+            return CONSTRAINT_ERROR;
+        } else {
+            return DB_ERROR + e.getMessage();
+        }
     }
 
 }

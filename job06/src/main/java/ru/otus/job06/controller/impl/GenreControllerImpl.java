@@ -1,28 +1,28 @@
-package ru.otus.job06.service.impl;
+package ru.otus.job06.controller.impl;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
-import ru.otus.job06.repository.GenreRepository;
+import ru.otus.job06.controller.GenreController;
 import ru.otus.job06.model.Genre;
-import ru.otus.job06.service.GenreController;
+import ru.otus.job06.service.GenreService;
 
 import java.util.List;
 
 @Service
 public class GenreControllerImpl implements GenreController {
 
-    private final GenreRepository repository;
+    private final GenreService service;
     private final ResultUtil resultUtil;
 
-    public GenreControllerImpl(GenreRepository repository, ResultUtil resultUtil) {
-        this.repository = repository;
+    public GenreControllerImpl(GenreService service, ResultUtil resultUtil) {
+        this.service = service;
         this.resultUtil = resultUtil;
     }
 
     @Override
     public Pair<List<Genre>, String> getGenreList() {
         try {
-            return resultUtil.handleList(repository.getGenreList());
+            return resultUtil.handleList(service.getGenreList());
         } catch (Exception e) {
             return Pair.<List<Genre>, String>of(null, resultUtil.handleException(e));
         }
@@ -31,7 +31,7 @@ public class GenreControllerImpl implements GenreController {
     @Override
     public Pair<Long, String> addGenre(String genre) {
         try {
-            return Pair.of(repository.addGenre(new Genre(null, genre)), null);
+            return Pair.of(service.addGenre(new Genre(null, genre)), null);
         } catch (Exception e) {
             return Pair.<Long, String>of(null, resultUtil.handleException(e));
         }
@@ -40,7 +40,8 @@ public class GenreControllerImpl implements GenreController {
     @Override
     public String updateGenre(Long genreId, String genre) {
         try {
-            return resultUtil.handleInt(repository.updateGenre(new Genre(genreId, genre)));
+            service.updateGenre(new Genre(genreId, genre));
+            return null;
         } catch (Exception e) {
             return resultUtil.handleException(e);
         }
@@ -49,7 +50,8 @@ public class GenreControllerImpl implements GenreController {
     @Override
     public String deleteGenre(Long genreId) {
         try {
-            return resultUtil.handleInt(repository.deleteGenre(genreId));
+            service.deleteGenre(genreId);
+            return null;
         } catch (Exception e) {
             return resultUtil.handleException(e);
         }

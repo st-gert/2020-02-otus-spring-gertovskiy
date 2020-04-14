@@ -12,13 +12,13 @@ import ru.otus.job06.repository.impl.BookRepositoryImpl;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Проверка количесва запросов к БД")
 @DataJpaTest
 @Import(BookRepositoryImpl.class)
 public class BookListStatisticsTest {
-    private static final int EXPECTED_QUERIES_COUNT = 3;
+    private static final long EXPECTED_QUERIES_COUNT = 2L;
 
     @Autowired
     BookRepositoryImpl repository;
@@ -27,7 +27,7 @@ public class BookListStatisticsTest {
     private TestEntityManager em;
 
     @Test
-    @DisplayName("Получение списка книг 3-мя запросами")
+    @DisplayName("Получение списка книг 2-мя запросами")
     void getBookList() {
         SessionFactory sessionFactory = em.getEntityManager().getEntityManagerFactory()
                 .unwrap(SessionFactory.class);
@@ -36,7 +36,9 @@ public class BookListStatisticsTest {
         bookList.stream()
                 .map(Book::toString)
                 .forEach(x -> {});
-        assertThat(sessionFactory.getStatistics().getPrepareStatementCount()) .isEqualTo(EXPECTED_QUERIES_COUNT);
+        long queriesCount = sessionFactory.getStatistics().getPrepareStatementCount();
+        System.out.println(queriesCount);
+        assertEquals(EXPECTED_QUERIES_COUNT, queriesCount);
     }
 
 }

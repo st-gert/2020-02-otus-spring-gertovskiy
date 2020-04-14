@@ -1,4 +1,4 @@
-package ru.otus.job06.service.impl;
+package ru.otus.job06.controller.impl;
 
 import org.springframework.stereotype.Service;
 import ru.otus.job06.model.Author;

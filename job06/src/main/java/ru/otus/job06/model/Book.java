@@ -49,7 +49,6 @@ public class Book {
     private List<Author> authors;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
     private List<Review> reviews = new ArrayList<>();
 
     public Book() {

@@ -1,5 +1,6 @@
-package ru.otus.job06.service.impl;
+package ru.otus.job06.controller.impl;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -10,10 +11,6 @@ import ru.otus.job06.ui.TestShellUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Тест преобразований строк в объкт Автор и список авторов")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -30,9 +27,9 @@ public class AuthorUtilTest {
         Author testPushkin = authorUtil.createAuthor("Александр Сергеевич Пушкин");
         Author correctGonchrov = new Author(null, "Иван", "Гончаров");
         Author correctPushkin = new Author(null, "Александр Сергеевич", "Пушкин");
-        assertAll(
-                () -> assertEquals(correctGonchrov, testGonchrov),
-                () -> assertEquals(correctPushkin, testPushkin)
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(correctGonchrov, testGonchrov),
+                () -> Assertions.assertEquals(correctPushkin, testPushkin)
         );
     }
 
@@ -48,6 +45,6 @@ public class AuthorUtilTest {
                 .collect(Collectors.joining(", "));
         List<Author> testAuthorList = authorUtil.createAuthorList(authorsString);
         Author[] array = new Author[testAuthorList.size()];         // необх. преобразовать в массив
-        assertThat(testAuthorList).containsOnly(testAuthorList.toArray(array));     // проверка!!!
+        org.assertj.core.api.Assertions.assertThat(testAuthorList).containsOnly(testAuthorList.toArray(array));     // проверка!!!
     }
 }

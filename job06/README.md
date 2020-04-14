@@ -19,16 +19,22 @@
 ## Классы
 #### Модель данных
 * Book - Книга.
-* Genre - Жанр.
 * Author - Автор. 
+* Genre - Жанр.
 * Review - Отзыв о книге
- #### DAO
+ #### Репозитории
  Репозитории для каждого типа объектов:
 * BookRepository
 * AuthorRepository
 * GenreRepository
 * ReviewRepository
  #### Сервисы
+ Сервисы доступа к репозиториям:
+* BookService
+* AuthorService
+* GenreService
+* ReviewService
+ #### Контроллеры
  Контроллеры обработки пользовательских запросов. Для каждого типа объктов:
 * BookController
 * AuthorController

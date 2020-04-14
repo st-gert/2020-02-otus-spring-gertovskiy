@@ -20,12 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Тестирование управления авторами.
- * Прохождения данных по цепочке бинов Shell - Controller - Repository и обратно.
+ * Прохождения данных по цепочке бинов Shell - Controller - Service - Repository и обратно.
  * Ограничить контекст не получается, т.к. для Spring Shell много чего необходимо.
  */
 @DisplayName("Тест команд Spring Shell. Управление авторами")
@@ -113,8 +115,8 @@ public class ShellAuthorTest {
     @Order(3)
     @DisplayName("Update - OK")
     public void updateOkTest() {
-        // Repository возвращает кол-во записей 1.
-        when(mockRepository.updateAuthor(any())).thenReturn(1);
+        // Repository возвращает существующий объект.
+        when(mockRepository.getAuthorById(anyLong())).thenReturn(new Author(22L, "Павел", "Чичиков"));
        // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
         assertEquals("OK", shell.evaluate(COMMAND_UPDATE));
         // До Repository дошли значения из команды.
@@ -127,14 +129,12 @@ public class ShellAuthorTest {
     @Order(23)
     @DisplayName("Update - Error")
     public void updateErrorTest() {
-        // Repository возвращает кол-во записей 0.
-        when(mockRepository.updateAuthor(any())).thenReturn(0);
+        // Repository возвращает NULL - объект не найден.
+        when(mockRepository.getAuthorById(anyLong())).thenReturn(null);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_UPDATE_SHORT)).startsWith("Ошибка").contains("Данные не найдены");
-        // До Repository дошло заданное значение.
-        ArgumentCaptor<Author> captor = ArgumentCaptor.forClass(Author.class);
-        verify(mockRepository).updateAuthor(captor.capture());
-        assertEquals(new Author(10L,"Имя", "Фамилия"), captor.getValue());
+        // Метод Repository не выполнялся.
+        verify(mockRepository, never()).updateAuthor(any());
     }
 
     @Test
@@ -142,7 +142,8 @@ public class ShellAuthorTest {
     @DisplayName("Update - Exception")
     public void updateExceptionTest() {
         // Repository выбрасывает Exception.
-        when(mockRepository.updateAuthor(any())).thenThrow(new RuntimeException("DB error"));
+        when(mockRepository.getAuthorById(anyLong())).thenReturn(new Author(2L, "", ""));
+        doThrow(new RuntimeException("DB error")).when(mockRepository).updateAuthor(any());
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_UPDATE_SHORT)).startsWith("Ошибка").contains("DB error");
     }
@@ -151,32 +152,34 @@ public class ShellAuthorTest {
     @Order(4)
     @DisplayName("Delete - OK")
     public void deleteOkTest() {
-        // Repository возвращает кол-во записей 1.
-        when(mockRepository.deleteAuthor(anyLong())).thenReturn(1);
-       // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
+        Author author = new Author(100L, "Имя", "Фамилия");
+        // Repository возвращает существующий объект.
+        when(mockRepository.getAuthorById(anyLong())).thenReturn(author);
+        // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
         assertEquals("OK", shell.evaluate(COMMAND_DELETE));
         // До Repository дошло значение 100.
-        verify(mockRepository).deleteAuthor(100L);
+        verify(mockRepository).deleteAuthor(author);
     }
 
     @Test
     @Order(24)
     @DisplayName("Delete - Error")
     public void deleteErrorTest() {
-        // Repository возвращает кол-во записей 0.
-        when(mockRepository.deleteAuthor(anyLong())).thenReturn(0);
+        // Repository возвращает Null - объект не найден.
+        when(mockRepository.getAuthorById(anyLong())).thenReturn(null);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_DELETE_SHORT)).startsWith("Ошибка").contains("Данные не найдены");
-        verify(mockRepository).deleteAuthor(50L);
+        // Метод Repository не выполнялся.
+        verify(mockRepository, never()).deleteAuthor(any());
     }
-
 
     @Test
     @Order(34)
     @DisplayName("Delete - Exception")
     public void deleteExceptionTest() {
         // Repository выбрасывает Exception.
-        when(mockRepository.deleteAuthor(anyLong())).thenThrow(new RuntimeException("DB error"));
+        when(mockRepository.getAuthorById(anyLong())).thenReturn(new Author(2L, "Имя", "Фамилия"));
+        doThrow(new RuntimeException("DB error")).when(mockRepository).deleteAuthor(any());
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_DELETE_SHORT)).startsWith("Ошибка").contains("DB error");
     }

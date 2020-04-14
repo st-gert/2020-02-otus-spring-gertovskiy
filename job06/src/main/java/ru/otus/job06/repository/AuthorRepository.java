@@ -1,10 +1,8 @@
 package ru.otus.job06.repository;
 
-import ru.otus.job06.exception.ApplDbConstraintException;
 import ru.otus.job06.model.Author;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Repository Авторы.
@@ -12,13 +10,16 @@ import java.util.Optional;
 public interface AuthorRepository {
 
     List<Author> getAuthorList();
-    Optional<Author> getAuthorById(Long id);
-    Optional<Author> getAuthorByName(Author author);
 
-    Long addAuthor(Author author);
+    Author getAuthorById(long id);
 
-    int updateAuthor(Author author) throws ApplDbConstraintException;
+    // Используется в BookService для заполнения Book
+    Author getAuthorByName(Author author);
 
-    int deleteAuthor(Long authorId) throws ApplDbConstraintException;
+    long addAuthor(Author author);
+
+    void updateAuthor(Author author);
+
+    void deleteAuthor(Author author);
 
 }

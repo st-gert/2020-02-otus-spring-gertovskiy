@@ -8,11 +8,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.shell.Input;
 import org.springframework.shell.Shell;
-import ru.otus.job06.repository.GenreRepository;
-import ru.otus.job06.exception.ApplDbConstraintException;
 import ru.otus.job06.model.Genre;
+import ru.otus.job06.repository.GenreRepository;
 
 import java.util.Collections;
 
@@ -20,12 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Тестирование управления лит. жанрами.
- * Прохождения данных по цепочке бинов Shell - Controller - Repository и обратно.
+ * Прохождения данных по цепочке бинов Shell - Controller - Service - Repository и обратно.
  * Ограничить контекст не получается, т.к. для Spring Shell много чего необходимо.
  */
 @DisplayName("Тест команд Spring Shell. Управление лит. жанрами")
@@ -107,9 +109,9 @@ public class ShellGenreTest {
     @Order(3)
     @DisplayName("Update - OK")
     public void updateOkTest() {
-        // Repository возвращает кол-во записей 1.
-        when(mockRepository.updateGenre(any())).thenReturn(1);
-       // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
+        // Repository возвращает существующий объект.
+        when(mockRepository.getGenreById(anyLong())).thenReturn(new Genre(2L, "Qwerty"));
+       // Команда (длинная) возвращает пользователю ОК.
         assertEquals("OK", shell.evaluate(COMMAND_UPDATE));
         // До Repository дошли значения из команды.
         verify(mockRepository).updateGenre(new Genre(2L, "Детектив"));
@@ -119,12 +121,12 @@ public class ShellGenreTest {
     @Order(23)
     @DisplayName("Update - Error")
     public void updateErrorTest() {
-        // Repository возвращает кол-во записей 0.
-        when(mockRepository.updateGenre(any())).thenReturn(0);
+        // Repository возвращает NULL - объект не найден.
+        when(mockRepository.getGenreById(any())).thenReturn(null);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_UPDATE_SHORT)).startsWith("Ошибка").contains("Данные не найдены");
-        // До Repository дошли значения из команды.
-        verify(mockRepository).updateGenre(new Genre(10L, "МурА"));
+        // Метод Repository не выполнялся.
+        verify(mockRepository, never()).updateGenre(any());
     }
 
     @Test
@@ -132,7 +134,8 @@ public class ShellGenreTest {
     @DisplayName("Update - Exception")
     public void updateExceptionTest() {
         // Repository выбрасывает Exception.
-        when(mockRepository.updateGenre(any())).thenThrow(new RuntimeException("DB error"));
+        when(mockRepository.getGenreById(anyLong())).thenReturn(new Genre(2L, "Qwerty"));
+        doThrow(new RuntimeException("DB error")).when(mockRepository).updateGenre(any());
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_UPDATE_SHORT)).startsWith("Ошибка").contains("DB error");
     }
@@ -141,36 +144,39 @@ public class ShellGenreTest {
     @Order(4)
     @DisplayName("Delete - OK")
     public void deleteOkTest() {
-        // Repository возвращает кол-во записей 1.
-        when(mockRepository.deleteGenre(anyLong())).thenReturn(1);
+        Genre genre = new Genre(100L, "Qwerty");
+        // Repository возвращает существующий объект.
+        when(mockRepository.getGenreById(anyLong())).thenReturn(genre);
        // Команда (длинная) удалить запись с ID = 100. Возвращает пользователю ОК.
         assertEquals("OK", shell.evaluate(COMMAND_DELETE));
-        // До Repository дошло значение 100.
-        verify(mockRepository).deleteGenre(100L);
+        // До Repository дошло значение.
+        verify(mockRepository).deleteGenre(genre);
     }
 
     @Test
     @Order(24)
     @DisplayName("Delete - Error")
     public void deleteErrorTest() {
-        // Repository возвращает кол-во записей 0.
-        when(mockRepository.deleteGenre(anyLong())).thenReturn(0);
+        // Repository возвращает Null - объект не найден.
+        when(mockRepository.getGenreById(any())).thenReturn(null);
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_DELETE_SHORT)).startsWith("Ошибка").contains("Данные не найдены");
-        // До Repository дошло значение 50.
-        verify(mockRepository).deleteGenre(50L);
+        // Метод Repository не выполнялся.
+        verify(mockRepository, never()).deleteGenre(any());
     }
 
     @Test
     @Order(25)
     @DisplayName("Delete - Error 2")
     public void deleteError2Test() {
+        Genre genre = new Genre(50L, "Qwerty");
         // Repository возвращает признак нарушения constraint.
-        when(mockRepository.deleteGenre(anyLong())).thenThrow(new ApplDbConstraintException("Операция запрещена"));
+        when(mockRepository.getGenreById(anyLong())).thenReturn(genre);
+        doThrow(new DataIntegrityViolationException("error")).when(mockRepository).deleteGenre(any());
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_DELETE_SHORT)).startsWith("Ошибка").contains("Операция запрещена");
-        // До Repository дошло значение 50.
-        verify(mockRepository).deleteGenre(50L);
+        // До Repository дошло значение с ID 50.
+        verify(mockRepository).deleteGenre(genre);
     }
 
     @Test
@@ -178,7 +184,8 @@ public class ShellGenreTest {
     @DisplayName("Delete - Exception")
     public void deleteExceptionTest() {
         // Repository выбрасывает Exception.
-        when(mockRepository.deleteGenre(anyLong())).thenThrow(new RuntimeException("DB error"));
+        when(mockRepository.getGenreById(anyLong())).thenReturn(new Genre(2L, "Qwerty"));
+        doThrow(new RuntimeException("DB error")).when(mockRepository).deleteGenre(any());
         // Команда (краткая) возвращает пользователю сообщение об ошибке.
         assertThat((String) shell.evaluate(COMMAND_DELETE_SHORT)).startsWith("Ошибка").contains("DB error");
     }

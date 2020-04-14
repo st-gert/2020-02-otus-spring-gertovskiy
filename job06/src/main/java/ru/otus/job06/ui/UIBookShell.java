@@ -3,7 +3,7 @@ package ru.otus.job06.ui;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.otus.job06.service.BookController;
+import ru.otus.job06.controller.BookController;
 
 @ShellComponent
 public class UIBookShell {
@@ -49,7 +49,7 @@ public class UIBookShell {
             @ShellOption(value = "-g", help = "Жанр.") String genre,
             @ShellOption(value = "-a", help = "Автор или список авторов в формате: \"Имя Фамилия, ...\"")
                     String authors) {
-        return shellUtil.getMessageFromLong(controller.updateBook(bookId, title, genre, authors));
+        return shellUtil.getMessageSimple(controller.updateBook(bookId, title, genre, authors));
     }
 
     @ShellMethod(value = "Удалить книгу.", key = {"book-delete", "bd"})

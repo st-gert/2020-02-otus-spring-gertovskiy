@@ -1,4 +1,4 @@
-package ru.otus.job06.service;
+package ru.otus.job06.controller;
 
 import org.apache.commons.lang3.tuple.Pair;
 import ru.otus.job06.model.Book;
@@ -18,7 +18,7 @@ public interface BookController {
 
     Pair<Long, String> addBook(String title, String genre, String authors);
 
-    String deleteBook(Long bookId);
+    String updateBook(Long bookId, String title, String genre, String authors);
 
-    Pair<Long, String> updateBook(Long bookId, String title, String genre, String authors);
+    String deleteBook(Long bookId);
 }

@@ -1,24 +1,22 @@
-package ru.otus.job06.repository;
+package ru.otus.job06.service;
 
 import ru.otus.job06.model.Book;
 
 import java.util.List;
+import java.util.Optional;
 
-/**
- * Repository Книги.
- */
-public interface BookRepository {
+public interface BookService {
 
     List<Book> getBookList();
     List<Book> getBookListByGenre(String genre);
     List<Book> getBookListByAuthor(String authorLastName);
 
-    Book getBookById(Long bookId);
+    Optional<Book> getBookById(Long bookId);
 
     long addBook(Book book);
 
     void updateBook(Book book);
 
-    void deleteBook(Book book);
+    void deleteBook(Long bookId);
 
 }
