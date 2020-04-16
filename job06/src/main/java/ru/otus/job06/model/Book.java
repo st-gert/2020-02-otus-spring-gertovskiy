@@ -7,7 +7,6 @@ import org.springframework.util.CollectionUtils;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,7 +17,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -38,17 +36,17 @@ public class Book {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @ManyToOne(targetEntity = Genre.class)
+    @ManyToOne
     @JoinColumn(name = "genre_id")
     private Genre genre;
 
-    @ManyToMany(targetEntity = Author.class, fetch = FetchType.EAGER)
+    @ManyToMany(targetEntity = Author.class)
     @JoinTable(name = "author_book", joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id"))
     @Fetch(FetchMode.SUBSELECT)
     private List<Author> authors;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
 
     public Book() {
@@ -61,20 +59,14 @@ public class Book {
         this.authors = authors;
     }
 
-    public void addReview(String opinion) {
-        reviews.add(new Review(null, this, opinion));
-    }
-
     @Override
     public String toString() {
         String authorStr = CollectionUtils.isEmpty(authors) ? "? " : authors
                 .stream()
-                .sorted(Comparator.comparing(Author::getAuthorId))
                 .map(Author::getFullName)
                 .collect(Collectors.joining(", "));
         String reviewStr = CollectionUtils.isEmpty(reviews) ? "" : "\n" + reviews
                 .stream()
-                .sorted(Comparator.comparing(Review::getReviewId))
                 .map(x -> "    - " + x.toString())
                 .collect(Collectors.joining("\n"))
                 ;

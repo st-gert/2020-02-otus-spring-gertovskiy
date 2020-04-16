@@ -5,7 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -25,6 +27,9 @@ public class Author {
 
     @Column(name = "last_name", nullable = false)
     private String lastName;
+
+    @ManyToMany(mappedBy = "authors")
+    private List<Book> books;
 
     public Author() {
     }
@@ -72,5 +77,11 @@ public class Author {
     }
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+    public List<Book> getBooks() {
+        return books;
+    }
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 }

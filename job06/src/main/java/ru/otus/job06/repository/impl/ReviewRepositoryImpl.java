@@ -1,7 +1,6 @@
 package ru.otus.job06.repository.impl;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.job06.model.Review;
 import ru.otus.job06.repository.ReviewRepository;
 
@@ -9,7 +8,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 @Repository
-@Transactional
 public class ReviewRepositoryImpl implements ReviewRepository {
 
     @PersistenceContext

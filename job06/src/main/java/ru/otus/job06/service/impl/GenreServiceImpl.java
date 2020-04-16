@@ -1,8 +1,7 @@
 package ru.otus.job06.service.impl;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.otus.job06.exception.ApplDbConstraintException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.job06.exception.ApplDbNoDataFoundtException;
 import ru.otus.job06.model.Genre;
 import ru.otus.job06.repository.GenreRepository;
@@ -31,34 +30,29 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
+    @Transactional
     public long addGenre(Genre genre) {
         return repository.addGenre(genre);
     }
 
     @Override
+    @Transactional
     public void updateGenre(Genre genre) {
         Genre currentGenre = repository.getGenreById(genre.getGenreId());
         if (currentGenre == null) {
             throw new ApplDbNoDataFoundtException();
         }
-        try {
-            repository.updateGenre(genre);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApplDbConstraintException();
-        }
+        repository.updateGenre(genre);
     }
 
     @Override
+    @Transactional
     public void deleteGenre(Long genreId) {
         Genre genre = repository.getGenreById(genreId);
         if (genre == null) {
             throw new ApplDbNoDataFoundtException();
         }
-        try {
-            repository.deleteGenre(genre);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApplDbConstraintException();
-        }
+        repository.deleteGenre(genre);
     }
 
 }

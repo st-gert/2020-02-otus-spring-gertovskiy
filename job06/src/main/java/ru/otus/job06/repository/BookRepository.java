@@ -10,8 +10,6 @@ import java.util.List;
 public interface BookRepository {
 
     List<Book> getBookList();
-    List<Book> getBookListByGenre(String genre);
-    List<Book> getBookListByAuthor(String authorLastName);
 
     Book getBookById(Long bookId);
 

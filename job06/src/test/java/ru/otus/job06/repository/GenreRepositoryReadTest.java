@@ -13,6 +13,9 @@ import ru.otus.job06.model.Genre;
 import ru.otus.job06.repository.impl.GenreRepositoryImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("Тест Repository Управление лит.жанрами")
 @DataJpaTest
@@ -31,10 +34,10 @@ class GenreRepositoryReadTest {
     @DisplayName("Получение жанра по наименованию")
     void getGenreByName() {
         Genre genre = repository.getGenreByName("сатира");
-        assertThat(genre)
-                .isNotNull()
-                .isEqualToComparingFieldByField(new Genre(2L, "Сатира"))
-        ;
+        assertAll(
+                () -> assertNotNull(genre)
+                , () -> assertEquals(new Genre(2L, "Сатира").toString(), genre.toString())
+        );
     }
 
     @Test

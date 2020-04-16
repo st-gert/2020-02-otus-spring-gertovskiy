@@ -12,12 +12,10 @@ import java.util.List;
 public class AuthorControllerImpl implements AuthorController {
 
     private final AuthorService service;
-    private final AuthorUtil authorUtil;
     private final ResultUtil resultUtil;
 
-    public AuthorControllerImpl(AuthorService service, AuthorUtil authorUtil, ResultUtil resultUtil) {
+    public AuthorControllerImpl(AuthorService service, ResultUtil resultUtil) {
         this.service = service;
-        this.authorUtil = authorUtil;
         this.resultUtil = resultUtil;
     }
 
@@ -33,7 +31,7 @@ public class AuthorControllerImpl implements AuthorController {
     @Override
     public Pair<Long, String> addAuthor(String authorFullName) {
         try {
-            return Pair.of(service.addAuthor(authorUtil.createAuthor(authorFullName)), null);
+            return Pair.of(service.addAuthor(AuthorUtil.createAuthor(authorFullName)), null);
         } catch (Exception e) {
             return Pair.<Long, String>of(null, resultUtil.handleException(e));
         }
@@ -41,7 +39,7 @@ public class AuthorControllerImpl implements AuthorController {
 
     @Override
     public String updateAuthor(Long authorId, String authorFullName) {
-        Author author = authorUtil.createAuthor(authorFullName);
+        Author author = AuthorUtil.createAuthor(authorFullName);
         author.setAuthorId(authorId);
         try {
             service.updateAuthor(author);

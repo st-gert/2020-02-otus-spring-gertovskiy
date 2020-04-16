@@ -1,7 +1,6 @@
 package ru.otus.job06.repository.impl;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.job06.exception.ApplDbConstraintException;
 import ru.otus.job06.model.Author;
 import ru.otus.job06.repository.AuthorRepository;
@@ -13,7 +12,6 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
-@Transactional
 public class AuthorRepositoryImpl implements AuthorRepository {
 
     @PersistenceContext

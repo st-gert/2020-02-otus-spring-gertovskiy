@@ -1,11 +1,11 @@
 package ru.otus.job06.service.impl;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.otus.job06.exception.ApplDbConstraintException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.job06.exception.ApplDbNoDataFoundtException;
 import ru.otus.job06.model.Book;
 import ru.otus.job06.model.Review;
+import ru.otus.job06.repository.BookRepository;
 import ru.otus.job06.repository.ReviewRepository;
 import ru.otus.job06.service.ReviewService;
 
@@ -15,53 +15,47 @@ import java.util.Optional;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository repository;
+    private final BookRepository bookRepository;
 
-    public ReviewServiceImpl(ReviewRepository repository) {
+    public ReviewServiceImpl(ReviewRepository repository, BookRepository bookRepository) {
         this.repository = repository;
+        this.bookRepository = bookRepository;
     }
 
     @Override
     public Optional<Review> getReviewById(Long reviewId) {
-        return Optional.ofNullable( repository.getReviewById(reviewId) );
+        return Optional.ofNullable(repository.getReviewById(reviewId));
     }
 
     @Override
-    public long addReview(Book book) {
-        Optional<Review> optionalReview = book.getReviews()
-            .stream()
-            .filter(x -> x.getReviewId() == null)
-            .findAny();
-        if (optionalReview.isPresent()) {
-            return repository.addReview(optionalReview.get());
-        } else {
+    @Transactional
+    public long addReview(long bookId, String opinion) {
+        Book book = bookRepository.getBookById(bookId);
+        if (book == null) {
             throw new ApplDbNoDataFoundtException();
         }
+        Review review = new Review(null, book, opinion);
+        return repository.addReview(review);
     }
 
     @Override
+    @Transactional
     public void updateReview(Review review) {
         Review currentReview = repository.getReviewById(review.getReviewId());
         if (currentReview == null) {
             throw new ApplDbNoDataFoundtException();
         }
-        try {
-            repository.updateReview(review);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApplDbConstraintException();
-        }
+        repository.updateReview(review);
     }
 
     @Override
+    @Transactional
     public void deleteReview(long reviewId) {
         Review review = repository.getReviewById(reviewId);
         if (review == null) {
             throw new ApplDbNoDataFoundtException();
         }
-        try {
-            repository.deleteReview(review);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApplDbConstraintException();
-        }
+        repository.deleteReview(review);
     }
 
 }

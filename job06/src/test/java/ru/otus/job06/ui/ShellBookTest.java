@@ -19,6 +19,7 @@ import ru.otus.job06.repository.AuthorRepository;
 import ru.otus.job06.repository.BookRepository;
 import ru.otus.job06.repository.GenreRepository;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +39,9 @@ import static org.mockito.Mockito.when;
 @DisplayName("Тест команд Spring Shell. Управление книгами")
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ShellBookCUDTest {
+public class ShellBookTest {
+    public static final Input COMMAND_GET_LIST = () -> "book-get";
+    public static final Input COMMAND_GET_LIST_SHORT = () -> "bg";
     public static final Input COMMAND_ADD = FixedInput.of("book-add", "Понедельник начинается в субботу",
             "Фантастика", "Аркадий Стругацкий, Борис Стругацкий");
     public static final Input COMMAND_ADD_SHORT = FixedInput.of("ba", "Азазель", "Детектив", "Борис Акунин");
@@ -103,6 +106,38 @@ public class ShellBookCUDTest {
         Book expectedBook = bookList.get(1);
         expectedBook.setBookId(null);
         assertEquals(expectedBook.toString(), captor.getValue().toString());
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("Чтение полного списка")
+    public void getListOkTest() {
+        // Repository возвращает список.
+        when(mockRepository.getBookList()).thenReturn(bookList);
+        // Команда (длинная)
+        assertThat((String) shell.evaluate(COMMAND_GET_LIST)).contains("1").contains("2").contains("\n")
+                .doesNotContain("3").contains("Понедельник начинается в субботу").contains("Азазель")
+                .contains("Аркадий Стругацкий, Борис Стругацкий").contains("Борис Акунин");
+    }
+
+    @Test
+    @Order(22)
+    @DisplayName("Чтение полного списка - Error")
+    public void getListErrorTest() {
+        // Repository возвращает пустой список.
+        when(mockRepository.getBookList()).thenReturn(Collections.emptyList());
+        // Команда (краткая) возвращает пользователю сообщение об ошибке.
+        assertThat((String) shell.evaluate(COMMAND_GET_LIST_SHORT)).startsWith("Ошибка").contains("Данные не найдены");
+    }
+
+    @Test
+    @Order(32)
+    @DisplayName("Чтение полного списка - Exception")
+    public void getListExceptionTest() {
+        // Repository возвращает пустой список.
+        when(mockRepository.getBookList()).thenThrow(new RuntimeException("DB error"));
+        // Команда (краткая) возвращает пользователю сообщение об ошибке.
+        assertThat((String) shell.evaluate(COMMAND_GET_LIST_SHORT)).startsWith("Ошибка").contains("DB error");
     }
 
     @Test

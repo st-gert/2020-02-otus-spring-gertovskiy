@@ -1,7 +1,6 @@
 package ru.otus.job06.repository.impl;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ru.otus.job06.model.Genre;
 import ru.otus.job06.repository.GenreRepository;
 
@@ -12,7 +11,6 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
-@Transactional
 public class GenreRepositoryImpl implements GenreRepository {
 
     @PersistenceContext

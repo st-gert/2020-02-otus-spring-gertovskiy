@@ -13,6 +13,9 @@ import ru.otus.job06.model.Author;
 import ru.otus.job06.repository.impl.AuthorRepositoryImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("Тест Repository Управление авторами")
 @DataJpaTest
@@ -32,11 +35,10 @@ public class AuthorRepositoryReadTest {
     void getAuthorByName() {
         Author author = new Author(null, "Кир", "Булычев");
         Author foundAuthor = repository.getAuthorByName(author);
-        author.setAuthorId(5L);
-        assertThat(foundAuthor)
-                .isNotNull()
-                .isEqualToComparingFieldByField(author)
-        ;
+        assertAll(
+                () -> assertNotNull(foundAuthor)
+                , () -> assertEquals(author.getFullName(), foundAuthor.getFullName())
+        );
     }
 
     @Test

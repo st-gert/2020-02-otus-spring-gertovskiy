@@ -8,7 +8,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import ru.otus.job06.model.Author;
 import ru.otus.job06.model.Book;
@@ -27,17 +26,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Тест Repository Управление книгами")
 @DataJpaTest
-@Import({BookRepositoryImpl.class, BookServiceImpl.class} )
+@Import({BookRepositoryImpl.class, BookServiceImpl.class, AuthorRepositoryImpl.class, GenreRepositoryImpl.class} )
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BookRepositoryReadTest {
 
     @Autowired
     BookServiceImpl bookService;
-
-    @MockBean
-    AuthorRepositoryImpl mockAuthorRepository;
-    @MockBean
-    GenreRepositoryImpl mockGenreRepository;
 
     @Autowired
     private TestEntityManager em;

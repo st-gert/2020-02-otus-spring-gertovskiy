@@ -5,7 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -22,6 +24,9 @@ public class Genre {
 
     @Column(name = "genre_name", nullable = false, unique = true)
     private String genreName;
+
+    @OneToMany(mappedBy = "genre")
+    private List<Book> books;
 
     public Genre() {
     }
@@ -57,5 +62,11 @@ public class Genre {
     }
     public void setGenreName(String genreName) {
         this.genreName = genreName;
+    }
+    public List<Book> getBooks() {
+        return books;
+    }
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 }

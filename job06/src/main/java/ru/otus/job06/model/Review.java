@@ -1,6 +1,5 @@
 package ru.otus.job06.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,7 +25,7 @@ public class Review {
     @Column(name = "opinion", nullable = false)
     private String opinion;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
@@ -66,5 +65,11 @@ public class Review {
     }
     public void setOpinion(String opinion) {
         this.opinion = opinion;
+    }
+    public Book getBook() {
+        return book;
+    }
+    public void setBook(Book book) {
+        this.book = book;
     }
 }

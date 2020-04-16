@@ -1,8 +1,7 @@
 package ru.otus.job06.service.impl;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.otus.job06.exception.ApplDbConstraintException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.job06.exception.ApplDbNoDataFoundtException;
 import ru.otus.job06.model.Author;
 import ru.otus.job06.repository.AuthorRepository;
@@ -27,38 +26,33 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Optional<Author> getAuthorById(long id) {
-        return Optional.ofNullable( repository.getAuthorById(id) );
+        return Optional.ofNullable(repository.getAuthorById(id));
     }
 
     @Override
+    @Transactional
     public long addAuthor(Author author) {
         return repository.addAuthor(author);
     }
 
     @Override
+    @Transactional
     public void updateAuthor(Author author) {
         Author currentAuthor = repository.getAuthorById(author.getAuthorId());
         if (currentAuthor == null) {
             throw new ApplDbNoDataFoundtException();
         }
-        try {
-            repository.updateAuthor(author);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApplDbConstraintException();
-        }
+        repository.updateAuthor(author);
     }
 
     @Override
+    @Transactional
     public void deleteAuthor(long authorId) {
         Author author = repository.getAuthorById(authorId);
         if (author == null) {
             throw new ApplDbNoDataFoundtException();
         }
-        try {
-            repository.deleteAuthor(author);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApplDbConstraintException();
-        }
+        repository.deleteAuthor(author);
     }
 
 }

@@ -7,9 +7,9 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public interface ReviewController {
 
-    Pair<Long, String> addReview(long bookId, String opnion);
+    Pair<Long, String> addReview(long bookId, String opinion);
 
-    String updateReview(long reviewId, String opnion);
+    String updateReview(long reviewId, String opinion);
 
     String deleteReview(long reviewId);
 

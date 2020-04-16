@@ -1,19 +1,19 @@
 package ru.otus.job06.service.impl;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.otus.job06.exception.ApplDbConstraintException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.job06.exception.ApplDbNoDataFoundtException;
 import ru.otus.job06.model.Author;
 import ru.otus.job06.model.Book;
 import ru.otus.job06.model.Genre;
+import ru.otus.job06.model.Review;
 import ru.otus.job06.repository.AuthorRepository;
 import ru.otus.job06.repository.BookRepository;
 import ru.otus.job06.repository.GenreRepository;
 import ru.otus.job06.service.BookService;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,63 +23,79 @@ public class BookServiceImpl implements BookService {
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
 
-    public BookServiceImpl(BookRepository repository, AuthorRepository authorRepository, GenreRepository genreRepository) {
+    public BookServiceImpl(BookRepository repository, AuthorRepository authorRepository,
+                           GenreRepository genreRepository) {
         this.repository = repository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
     }
 
     @Override
+    @Transactional
     public List<Book> getBookList() {
-        return distinct(repository.getBookList());
+        return repository.getBookList()
+                .stream()
+                .distinct()
+                .peek(this::sortAuthorsAndReviews)
+                .collect(Collectors.toList())
+                ;
     }
 
     @Override
-    public List<Book> getBookListByGenre(String genre) {
-        return distinct(repository.getBookListByGenre(genre));
+    @Transactional
+    public List<Book> getBookListByGenre(String genreName) {
+        Genre genre = genreRepository.getGenreByName(genreName);
+        if (genre == null || genre.getBooks().isEmpty()) {
+            throw new ApplDbNoDataFoundtException();
+        }
+        List<Book> books = genre.getBooks();
+        books.forEach(this::sortAuthorsAndReviews);
+        return books;
     }
 
     @Override
+    @Transactional
     public List<Book> getBookListByAuthor(String authorLastName) {
-        return distinct(repository.getBookListByAuthor(authorLastName));
+        List<Author> authors = authorRepository.getAuthorList();
+        List<Book> books = authors
+                .stream()
+                .filter(x -> x.getLastName().equalsIgnoreCase(authorLastName))
+                .flatMap(x -> x.getBooks().stream())
+                .distinct()
+                .peek(this::sortAuthorsAndReviews)
+                .collect(Collectors.toList());
+        if (books.isEmpty()) {
+            throw new ApplDbNoDataFoundtException();
+        }
+        return books;
     }
 
     @Override
-    public Optional<Book> getBookById(Long bookId) {
-        return Optional.ofNullable( repository.getBookById(bookId) );
-    }
-
-    @Override
+    @Transactional
     public long addBook(Book book) {
         obtainAuthorAndGenreId(book);
         return repository.addBook(book);
     }
 
     @Override
+    @Transactional
     public void updateBook(Book book) {
         Book currentBook = repository.getBookById(book.getBookId());
         if (currentBook == null) {
             throw new ApplDbNoDataFoundtException();
         }
-        try {
-            obtainAuthorAndGenreId(book);
-            repository.updateBook(book);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApplDbConstraintException();
-        }
+        obtainAuthorAndGenreId(book);
+        repository.updateBook(book);
     }
 
     @Override
+    @Transactional
     public void deleteBook(Long bookId) {
         Book book = repository.getBookById(bookId);
         if (book == null) {
             throw new ApplDbNoDataFoundtException();
         }
-        try {
-            repository.deleteBook(book);
-        } catch (DataIntegrityViolationException e) {
-            throw new ApplDbConstraintException();
-        }
+        repository.deleteBook(book);
     }
 
     private void obtainAuthorAndGenreId(Book book) {
@@ -100,10 +116,14 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    private List<Book> distinct(List<Book> books) {
-        return books
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
+    private void sortAuthorsAndReviews(Book book) {
+        book.getAuthors().sort(Comparator
+                .comparing(Author::getLastName)
+                .thenComparing(Author::getFirstName)
+        );
+        book.getReviews().sort(Comparator
+                .comparing(Review::getReviewId)
+        );
     }
+
 }
