@@ -7,8 +7,7 @@
 * job04 - Приложение на Spring Boot + Spring Shell.
 ### Задания по теме 2. Работа с базами данных
 * job05 - DAO на Spring JDBC.
-* job06 - 
-* job07 - 
-* job08 - 
+* job06 - ORM DAO на Spring JPA + Hibernate (в качестве JPA Vendor-a)
+* job07 - Spring Data JPA
 
 
