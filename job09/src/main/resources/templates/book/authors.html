@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторы</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        label {
+            display: inline-block;
+            width: 300px;
+        }
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h1>Выбор авторов для списка книг</h1>
+
+    <form th:action="@{/book/authors}" th:method="post" action="list.html">
+        <div class="row" th:each="author : ${authors}">
+            <input id="input_checkbox" type="checkbox" name="selectedId" th:value="${author.authorId}" />
+            <label for="input_checkbox" th:text="${author.getFullName()}">Автор</label>
+        </div>
+        <div class="row">
+            <input type="submit" value="Выбрать" />
+        </div>
+    </form>
+
+</body>
+</html>

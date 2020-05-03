@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ошибка</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        .table, .table td {
+            border: 1px solid lightgray;
+            padding: 5px;
+            vertical-align:top;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h3>Ошибка</h3>
+    <p>Что-то пошло не так.</p>
+
+    <!-- Позаимствовано у https://www.logicbig.com/tutorials/spring-framework/spring-boot/custom-thymeleaf-error-page.html -->
+    <!-- Необходимо установить свойства:
+        server:
+          error:
+            include-exception:  true
+            include-stacktrace: always
+    -->
+    <table class="table">
+        <tr>
+            <td>Date</td>
+            <td th:text="${timestamp}"/>
+        </tr>
+        <tr>
+            <td>Path</td>
+            <td th:text="${path}"/>
+        </tr>
+        <tr>
+            <td>Error</td>
+            <td th:text="${error}"/>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td th:text="${status}"/>
+        </tr>
+        <tr>
+            <td>Message</td>
+            <td th:text="${message}"/>
+        </tr>
+        <tr>
+            <td>Exception</td>
+            <td th:text="${exception}"/>
+        </tr>
+        <tr>
+            <td>Trace</td>
+            <td>
+                <pre th:text="${trace}"/>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

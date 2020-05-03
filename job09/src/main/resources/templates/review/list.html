@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Отзывы на книгу</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        .list, .list td {
+            border: 1px solid lightgray;
+            padding: 5px;
+        }
+        h3 {
+            color: crimson;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h1>Отзывы на книгу</h1>
+
+    <h3 th:text="${bookToString}">Книга</h3>
+
+    <table class="list">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Отзыв</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="review : ${reviews}">
+            <td th:text="${review.reviewId}">10</td>
+            <td th:text="${review.opinion}">Класс!!!</td>
+            <td><a th:href="@{/review/edit(id=${review.reviewId})}" href="edit.html">Изменить</a></td>
+            <td><a th:href="@{/review/delete(bookId=${bookId},reviewId=${review.reviewId})}" href="list.html">Удалить</a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <form th:action="@{/review/add}" th:method="get" action="edit.html">
+        <input type="hidden" name="bookId" th:value="${bookId}">
+        <input type="submit" value="Добавить" />
+    </form>
+
+</body>
+</html>
