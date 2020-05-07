@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:if="${genre.genreId}">Корректировка жанра</title>
+    <title th:unless="${genre.genreId}">Добавление жанра</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input:read-only {
+            background: lightgray;
+        }
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h1 th:if="${genre.genreId}">Корректировка жанра</h1>
+    <h1 th:unless="${genre.genreId}">Добавление жанра</h1>
+
+    <form id="edit-form" th:action="@{/genre/edit}" th:method="post" >
+        <div class="row">
+            <label for="id-input">ID:</label>
+            <input id="id-input" name="genreId" type="text" readonly="readonly" th:value="${genre.genreId}" value="1"/>
+        </div>
+        <div class="row">
+            <label for="name-input">Наименование:</label>
+            <input id="name-input" name="genreName" type="text" th:value="${genre.genreName}" value="Детектив"/>
+        </div>
+        <div class="row">
+            <input type="submit" value="Сохранить" />
+        </div>
+    </form>
+
+</body>
+</html>
