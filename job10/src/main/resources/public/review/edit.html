@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title class="page-title">Добавление отзыва</title>
+</head>
+<body>
+    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+
+    <h1 class="page-title">Добавление отзыва</h1>
+
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly" />
+    </div>
+    <div class="row">
+        <label for="name-input">Отзыв:</label>
+        <input id="name-input" type="text">
+    </div>
+    <div class="row">
+        <input id="action-save" type="button" value="Сохранить" disabled>
+    </div>
+
+    <script>
+        let bookId = null;
+        let reviewId = null;
+        let opinion = null;
+        let queryType = 'POST';
+        // При загрузке определяем добавление или корректировка и загружаем данные для корректировки
+        $(function() {
+            const urlParams = new URL(location.href).searchParams;
+            bookId = urlParams.get('bookId');
+            reviewId = urlParams.get('reviewId');
+            if (reviewId) {
+                queryType = 'PUT';
+                $('.page-title').html('Корректировка отзыва');
+                $.get(`/api/review/${reviewId}`).done( function(review) {
+                    $('#id-input').attr('value', review.reviewId);
+                    $('#name-input').attr('value', review.opinion);
+                });
+            }
+        });
+        // Управляем доступностью кнопки и прикапываем откорректированное значение
+        $('#name-input').on('input', function () {
+            opinion = $('#name-input')[0].value;
+            $('#action-save').attr('disabled', !opinion);
+        })
+
+        // Сохраняем данные и переходим на страницу списка
+        $('#action-save').on('click', function () {
+            const request = JSON.stringify({
+                bookId: bookId,
+                reviewId: reviewId,
+                opinion: opinion
+            });
+            $.ajax('/api/review', {
+                type: queryType,
+                data: request,
+                dataType: 'json',
+                complete: function () {
+                    location.href = `list.html?id=${bookId}`;
+                },
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title class="page-title">Добавление автора</title>
+</head>
+<body>
+    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+
+    <h1 class="page-title">Добавление автора</h1>
+
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly" />
+    </div>
+    <div class="row">
+        <label for="firstname-input">Имя:</label>
+        <input id="firstname-input" class="name-input" type="text">
+    </div>
+    <div class="row">
+        <label for="lastname-input">Фамилия:</label>
+        <input id="lastname-input" class="name-input" type="text">
+    </div>
+    <div class="row">
+        <input id="action-save" type="button" value="Сохранить" disabled>
+    </div>
+
+    <script>
+        let authorId = null;
+        let firstName = null;
+        let lastName = null;
+        let queryType = 'POST';
+        // При загрузке определяем добавление или корректировка и загружаем данные для корректировки
+        $(function() {
+            authorId = new URL(location.href).searchParams.get('id');
+            if (authorId) {
+                queryType = 'PUT';
+                $('.page-title').html('Корректировка автора');  // замена заголовков
+                $.get(`/api/author/${authorId}`).done( function(author) {
+                   $('#id-input').attr('value', author.authorId);
+                   $('#firstname-input').attr('value', author.firstName);
+                   $('#lastname-input').attr('value', author.lastName);
+                });
+            }
+        });
+
+        // Управляем доступностью кнопки и прикапываем откорректированные значения
+        $('.name-input').on('input', function () {
+            firstName = $('#firstname-input')[0].value;
+            lastName = $('#lastname-input')[0].value;
+            $('#action-save').attr('disabled', !firstName || !lastName);
+        })
+
+        // Сохраняем данные и переходим на страницу списка
+        $('#action-save').on('click', function () {
+            const request = JSON.stringify({
+                authorId: authorId,
+                firstName: firstName,
+                lastName: lastName
+            });
+            $.ajax('/api/author', {
+                type: queryType,
+                data: request,
+                dataType: 'json',
+                complete: function () {
+                    location.href = 'list.html';
+                },
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+        })
+    </script>
+
+</body>
+</html>

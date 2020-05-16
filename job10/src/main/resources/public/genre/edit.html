@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title class="page-title">Добавление жанра</title>
+</head>
+<body>
+    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+
+    <h1 class="page-title">Добавление жанра</h1>
+
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly" />
+    </div>
+    <div class="row">
+        <label for="name-input">Наименование:</label>
+        <input id="name-input" type="text">
+    </div>
+    <div class="row">
+        <input id="action-save" type="button" value="Сохранить" disabled>
+    </div>
+
+    <script>
+        let genreId = null;
+        let genreName = null;
+        let queryType = 'POST';
+        // При загрузке определяем добавление или корректировка и загружаем данные для корректировки
+        $(function() {
+            genreId = new URL(location.href).searchParams.get('id');
+            if (genreId) {
+                queryType = 'PUT';
+                $('.page-title').html('Корректировка жанра');
+                $.get(`/api/genre/${genreId}`).done( function(genre) {
+                   $('#id-input').attr('value', genre.genreId);
+                   $('#name-input').attr('value', genre.genreName);
+                });
+            }
+        });
+
+        // Управляем доступностью кнопки и прикапываем откорректированное значение
+        $('#name-input').on('input', function () {
+            genreName = $('#name-input')[0].value;
+            $('#action-save').attr('disabled', !genreName);
+        })
+
+        // Сохраняем данные и переходим на страницу списка
+        $('#action-save').on('click', function () {
+            const request = JSON.stringify({
+                genreId: genreId,
+                genreName: genreName
+            });
+            $.ajax('/api/genre', {
+                type: queryType,
+                data: request,
+                dataType: 'json',
+                complete: function () {
+                    location.href = 'list.html';
+                },
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+        })
+    </script>
+
+</body>
+</html>

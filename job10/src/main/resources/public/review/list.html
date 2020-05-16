@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title>Отзывы на книгу</title>
+</head>
+<body>
+    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+
+    <h1>Отзывы на книгу</h1>
+
+    <h3></h3>
+
+    <table class="list">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Отзыв</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p>
+        <a id="href-add" href="">Добавить новый отзыв</a>
+    </p>
+
+    <script>
+        let href = null;
+        let bookId = null;
+        $(function() { loadList(); });
+
+        function loadList() {
+            bookId = new URL(location.href).searchParams.get('id');
+            href = `edit.html?bookId=${bookId}`;
+            $('#href-add').attr('href', href);
+            $.get(`/api/review/book/${bookId}`).done( function(book) {
+                $('h3').html(book.genreName + ' - ' + book.authorsString + '. ' + book.title);
+                const reviews = book.reviews;
+                $('tbody').children().remove();
+                reviews.forEach(function(review) {
+                    $('tbody').append(`
+                    <tr>
+                        <td>${review.reviewId}</td>
+                        <td>${review.opinion}</td>
+                        <td><a href="${href}&reviewId=${review.reviewId}">Изменить</a></td>
+                        <td><a class="delete" href="#" id="${review.reviewId}">Удалить</a></td>
+                    </tr>
+                    `)
+                });
+                $('.delete').on('click', function() {
+                    deleteReview(this.id);
+                    return false;
+                });
+            })
+        }
+
+        function deleteReview(id) {
+            if (confirm(`Подтвердите удаление отзыва ID ${id}`)) {
+                $.ajax(`/api/review/${id}`, {
+                    type: 'DELETE',
+                    success: function () {
+                        loadList();         // Обновление таблицы
+                    },
+                    error: function (jqXHR) {
+                        if ((jqXHR.status === 406 || jqXHR.status === 404) && (jqXHR.responseJSON)) {
+                            alert(jqXHR.responseJSON.message);
+                        } else {
+                            alert(`Ошибка, статус ${jqXHR.status}`)
+                        }
+                    }
+                })
+            }
+        }
+    </script>
+</body>
+</html>
