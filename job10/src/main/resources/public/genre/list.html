@@ -7,7 +7,7 @@
     <title>Список жанров</title>
 </head>
 <body>
-    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+    <p id="main-menu"></p>
 
     <h1>Список жанров</h1>
 
@@ -28,7 +28,10 @@
     </p>
 
     <script>
-        $(function() { loadList();});
+        $(function() {
+            $('#main-menu').load('/menu.html #menu1', 'html');
+            loadList();
+        });
 
         function loadList() {
             $.get('/api/genre').done( function(genres) {

@@ -7,7 +7,7 @@
     <title>Отзывы на книгу</title>
 </head>
 <body>
-    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+    <p id="main-menu"></p>
 
     <h1>Отзывы на книгу</h1>
 
@@ -30,13 +30,14 @@
     </p>
 
     <script>
-        let href = null;
-        let bookId = null;
-        $(function() { loadList(); });
+        $(function() {
+            $('#main-menu').load('/menu.html #menu1', 'html');
+            loadList();
+        });
 
         function loadList() {
-            bookId = new URL(location.href).searchParams.get('id');
-            href = `edit.html?bookId=${bookId}`;
+            const bookId = new URL(location.href).searchParams.get('id');
+            const href = `edit.html?bookId=${bookId}`;
             $('#href-add').attr('href', href);
             $.get(`/api/review/book/${bookId}`).done( function(book) {
                 $('h3').html(book.genreName + ' - ' + book.authorsString + '. ' + book.title);

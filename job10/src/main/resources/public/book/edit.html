@@ -7,7 +7,7 @@
     <title class="page-title">Добавление книги</title>
 </head>
 <body>
-    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+    <p id="main-menu"></p>
 
     <h1 class="page-title">Добавление книги</h1>
 
@@ -35,19 +35,20 @@
         <input id="save-button" type="button" value="Сохранить" />
     </div>
 
+    <input hidden id="storage" type="text">
+
     <script src="script.js"></script>
     <script>
-        let bookId = null;
-        let queryType = 'POST';
         // При загрузке страницы загружаем полные списки жанров и авторов,
         //      определяем добавление или корректировка и корректируем заголовок,
         //      загружаем данные книги для корректировки
         $(function() {
+            $('#main-menu').load('/menu.html #menu1', 'html');
             loadGenres();
             loadAuthors();
-            bookId = new URL(location.href).searchParams.get('id');
+            const bookId = new URL(location.href).searchParams.get('id');
+            $('#storage').attr('value', bookId);
             if (bookId) {
-                queryType = 'PUT';
                 $('.page-title').html('Корректировка книги');   // замена заголовков
                 $.get(`/api/book/${bookId}`).done( function(book) {
                     $('#id-input').attr('value', bookId);
@@ -74,6 +75,7 @@
                 alert('Введены не все данные');
                 return;
             }
+            const bookId = $('#storage').attr('value');
             const request = JSON.stringify({
                 bookId: bookId,
                 title: title,
@@ -81,7 +83,7 @@
                 authorsIds: authorsIds
             });
             $.ajax('/api/book', {
-                type: queryType,
+                type: bookId ? 'PUT' : 'POST',
                 data: request,
                 dataType: 'json',
                 complete: function () {

@@ -53,10 +53,9 @@ function loadAuthors() {
     $.get('/api/author').done(function (authors) {
         $('#checkboxes').children().remove();
         authors.forEach(function (author) {
-            let id = author.authorId;
             $('#checkboxes').append(`
-                <input id="${id}" type="checkbox" value="${id}">
-                <label class="lab-wide" for="${id}">${author.firstName} ${author.lastName}</label>
+                <input id="${author.authorId}" type="checkbox" value="${author.authorId}">
+                <label class="lab-wide" for="${author.authorId}">${author.firstName} ${author.lastName}</label>
                 <br>
             `)
         });

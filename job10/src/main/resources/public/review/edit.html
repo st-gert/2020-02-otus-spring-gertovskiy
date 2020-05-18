@@ -7,7 +7,7 @@
     <title class="page-title">Добавление отзыва</title>
 </head>
 <body>
-    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+    <p id="main-menu"></p>
 
     <h1 class="page-title">Добавление отзыва</h1>
 
@@ -23,18 +23,18 @@
         <input id="action-save" type="button" value="Сохранить" disabled>
     </div>
 
+    <input hidden id="storage" type="text">
+    <input hidden id="storage-book" type="text">
+
     <script>
-        let bookId = null;
-        let reviewId = null;
-        let opinion = null;
-        let queryType = 'POST';
         // При загрузке определяем добавление или корректировка и загружаем данные для корректировки
         $(function() {
+            $('#main-menu').load('/menu.html #menu1', 'html');
             const urlParams = new URL(location.href).searchParams;
-            bookId = urlParams.get('bookId');
-            reviewId = urlParams.get('reviewId');
+            const reviewId = urlParams.get('reviewId');
+            $('#storage').attr('value', reviewId);
+            $('#storage-book').attr('value', urlParams.get('bookId'));
             if (reviewId) {
-                queryType = 'PUT';
                 $('.page-title').html('Корректировка отзыва');
                 $.get(`/api/review/${reviewId}`).done( function(review) {
                     $('#id-input').attr('value', review.reviewId);
@@ -44,19 +44,21 @@
         });
         // Управляем доступностью кнопки и прикапываем откорректированное значение
         $('#name-input').on('input', function () {
-            opinion = $('#name-input')[0].value;
+            const opinion = $('#name-input')[0].value;
             $('#action-save').attr('disabled', !opinion);
         })
 
         // Сохраняем данные и переходим на страницу списка
         $('#action-save').on('click', function () {
+            const reviewId = $('#storage').attr('value');
+            const bookId = $('#storage-book').attr('value');
             const request = JSON.stringify({
                 bookId: bookId,
                 reviewId: reviewId,
-                opinion: opinion
+                opinion: $('#name-input')[0].value
             });
             $.ajax('/api/review', {
-                type: queryType,
+                type: reviewId ? 'PUT' : 'POST',
                 data: request,
                 dataType: 'json',
                 complete: function () {

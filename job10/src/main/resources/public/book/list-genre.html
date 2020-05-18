@@ -7,7 +7,7 @@
     <title>Список книг по жанру</title>
 </head>
 <body>
-    <iframe src="../menu.html" width="100%" height="75" frameborder="no"></iframe>
+    <p id="main-menu"></p>
 
     <h1>Список книг по жанру</h1>
 
@@ -38,19 +38,22 @@
         <a href="edit.html">Добавить новую книгу</a>
     </p>
 
+    <input hidden id="storage" type="text">
+
     <script src="script.js"></script>
     <script>
-        let genreId;
         $(function () {
+            $('#main-menu').load('/menu.html #menu1', 'html');
             loadGenres();
         });
 
         $('#select-button').on('click', function () {
-            genreId = $('#genre-input')[0].value;
+            $('#storage').attr('value', $('#genre-input')[0].value);
             loadList();
         });
 
         function loadList() {
+            const genreId = $('#storage').attr('value');
             $.get(`/api/book/genre/${genreId}`).then(
                 function (books) {
                     loadTable(books);
