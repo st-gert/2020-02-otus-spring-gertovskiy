@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title class="page-title">Добавление книги</title>
+</head>
+<body>
+    <p id="main-menu"></p>
+
+    <h1 class="page-title">Добавление книги</h1>
+
+    <!-- ID -->
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly">
+    </div>
+    <!-- Название -->
+    <div class="row">
+        <label for="name-input">Название:</label>
+        <input id="name-input" class="book-title" type="text">
+    </div>
+    <!-- Жанр -->
+    <div class="row">
+        <label class="lab-narrow" for="genre-input">Жанр:</label>
+        <select id="genre-input" name="id">
+        </select>
+    </div>
+    <!-- Авторы -->
+    <div id="checkboxes" class="row">
+    </div>
+    <!-- "Submit" -->
+    <div class="row">
+        <input id="save-button" type="button" value="Сохранить" />
+    </div>
+
+    <input hidden id="storage" type="text">
+
+    <script src="script.js"></script>
+    <script>
+        // При загрузке страницы загружаем полные списки жанров и авторов,
+        //      определяем добавление или корректировка и корректируем заголовок,
+        //      загружаем данные книги для корректировки
+        $(function() {
+            $('#main-menu').load('/menu.html #menu1', 'html');
+            loadGenres();
+            loadAuthors();
+            const bookId = new URL(location.href).searchParams.get('id');
+            $('#storage').attr('value', bookId);
+            if (bookId) {
+                $('.page-title').html('Корректировка книги');   // замена заголовков
+                $.get(`/api/book/${bookId}`).done( function(book) {
+                    $('#id-input').attr('value', bookId);
+                    $('#name-input').attr('value', book.title);
+                    $(`#genre-input option[value=${book.genreId}]`).prop('selected', true);
+                    $('#checkboxes input:checkbox').each(function () {
+                        if($.inArray(+$(this).val(), book.authorIds) > -1) {
+                            $(this).prop('checked', true);
+                        }
+                    });
+                });
+            }
+        });
+
+        // Сохраняем данные и переходим на страницу списка
+        $('#save-button').on('click', function () {
+            const title = $('#name-input')[0].value;
+            const genreId = $('#genre-input option:selected').val();
+            const authorsIds = [];
+            $('#checkboxes input:checkbox:checked').each(function () {
+                authorsIds.push(+$(this).val());
+            });
+            if(!title || !genreId || authorsIds.length === 0) {
+                alert('Введены не все данные');
+                return;
+            }
+            const bookId = $('#storage').attr('value');
+            const request = JSON.stringify({
+                bookId: bookId,
+                title: title,
+                genreId: genreId,
+                authorsIds: authorsIds
+            });
+            $.ajax('/api/book', {
+                type: bookId ? 'PUT' : 'POST',
+                data: request,
+                dataType: 'json',
+                complete: function () {
+                    location.href = 'list.html';
+                },
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+        })
+    </script>
+</body>
+</html>
