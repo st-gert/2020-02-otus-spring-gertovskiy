@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title>Список жанров</title>
+</head>
+<body>
+    <p id="main-menu"></p>
+
+    <h1>Список жанров</h1>
+
+    <table class="list">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Жанр</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p>
+        <a href="edit.html">Добавить новый жанр</a>
+    </p>
+
+    <script>
+        $(function() {
+            $('#main-menu').load('/menu.html #menu1', 'html');
+            loadList();
+        });
+
+        function loadList() {
+            $.get('/api/genre').done( function(genres) {
+                $('tbody').children().remove();
+                genres.forEach(function(genre) {
+                    $('tbody').append(`
+                    <tr>
+                        <td>${genre.genreId}</td>
+                        <td>${genre.genreName}</td>
+                        <td><a href="edit.html?id=${genre.genreId}">Изменить</a></td>
+                        <td><a class="delete" href="#" id="${genre.genreId}">Удалить</a></td>
+                    </tr>
+                    `)
+                });
+                $('.delete').on('click', function() {
+                    deleteGenre(this.id);
+                    return false;
+                });
+            })
+        }
+
+        function deleteGenre(id) {
+            if (confirm(`Подтвердите удаление жанра ID ${id}`)) {
+                $.ajax(`/api/genre/${id}`, {
+                    type: 'DELETE',
+                    success: function () {
+                        loadList();         // Обновление таблицы
+                    },
+                    error: function (jqXHR) {
+                        if ((jqXHR.status === 406 || jqXHR.status === 404) && (jqXHR.responseJSON)) {
+                            alert(jqXHR.responseJSON.message);
+                        } else {
+                            alert(`Ошибка, статус ${jqXHR.status}`)
+                        }
+                    }
+                })
+            }
+        }
+    </script>
+
+</body>
+</html>

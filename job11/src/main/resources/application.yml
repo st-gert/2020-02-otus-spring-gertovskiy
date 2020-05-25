@@ -1,0 +1,13 @@
+spring:
+  main:
+    banner-mode: off
+
+  data:
+    mongodb:
+#      uri: mongodb://localhost
+#      port: 27017
+      database: home_library
+
+logging:
+  level:
+    ROOT: INFO

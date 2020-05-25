@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title>Список книг по авторам</title>
+</head>
+<body>
+    <p id="main-menu"></p>
+
+    <h1>Список книг по авторам</h1>
+
+    <div id="checkboxes" class="row">
+    </div>
+    <div class="row">
+        <input id="select-button" type="button" value="Выбрать" />
+    </div>
+
+    <p>
+    <table class="list">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Жанр</th>
+            <th>Автор</th>
+            <th>Название</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p>
+        <a href="edit.html">Добавить новую книгу</a>
+    </p>
+
+    <input hidden id="storage" type="text">
+
+    <script src="script.js"></script>
+    <script>
+        $(function () {
+            $('#main-menu').load('/menu.html #menu1', 'html');
+            loadAuthors();
+        });
+
+        $('#select-button').on('click', function () {
+            const arr = [];
+            $('#checkboxes input:checkbox:checked').each(function(){
+                arr.push($(this).val());
+            });
+            $('#storage').attr('value', arr.join());
+            loadList();
+        });
+
+        function loadList() {
+            const authorIds = $('#storage').attr('value');
+            $.get(`/api/book/authors/${authorIds}`).then(
+                function (books) {
+                    loadTable(books);
+                },
+                function (jqXHR) {
+                    if (jqXHR.status === 404 && (jqXHR.responseJSON)) {
+                        $('tbody').children().remove();
+                        alert(jqXHR.responseJSON.message);
+                    } else {
+                        alert(`Ошибка, статус ${jqXHR.status}`)
+                    }
+                }
+            );
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title class="page-title">Добавление жанра</title>
+</head>
+<body>
+<p id="main-menu"></p>
+
+<h1 class="page-title">Добавление жанра</h1>
+
+<div class="row">
+    <label for="id-input">ID:</label>
+    <input id="id-input" type="text" readonly="readonly"/>
+</div>
+<div class="row">
+    <label for="name-input">Наименование:</label>
+    <input id="name-input" type="text">
+</div>
+<div class="row">
+    <input id="action-save" type="button" value="Сохранить" disabled>
+</div>
+
+<input hidden id="storage" type="text">
+
+<script>
+    // При загрузке определяем добавление или корректировка и загружаем данные для корректировки
+    $(function () {
+        $('#main-menu').load('/menu.html #menu1', 'html');
+        const genreId = new URL(location.href).searchParams.get('id');
+        $('#storage').attr('value', genreId);
+        if (genreId) {
+            $('.page-title').html('Корректировка жанра');
+            $.get(`/api/genre/${genreId}`).then(
+                function (genre) {
+                    $('#id-input').attr('value', genre.genreId);
+                    $('#name-input').attr('value', genre.genreName);
+                },
+                function(jqXHR) {
+                    handleError(jqXHR);
+                });
+        }
+    });
+
+    // Управляем доступностью кнопки и прикапываем откорректированное значение
+    $('#name-input').on('input', function () {
+        $('#action-save').attr('disabled', !$('#name-input')[0].value);
+    })
+
+    // Сохраняем данные и переходим на страницу списка
+    $('#action-save').on('click', function () {
+        const genreId = $('#storage').attr('value');
+        const request = JSON.stringify({
+            id: genreId,
+            genreName: $('#name-input')[0].value
+        });
+        $.ajax('/api/genre', {
+            type: genreId ? 'PUT' : 'POST',
+            data: request,
+            dataType: 'json',
+            complete: function () {
+                location.href = 'list.html';
+            },
+            error: function(jqXHR) {
+                handleError(jqXHR);
+            },
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+    })
+
+    function handleError(jqXHR) {
+        if ((jqXHR.status === 404 || jqXHR.status === 406) && (jqXHR.responseJSON)) {
+            alert(jqXHR.responseJSON.message);
+        } else {
+            alert(`Ошибка, статус ${jqXHR.status}`)
+        }
+        location.href = 'list.html';
+    }
+</script>
+
+</body>
+</html>
