@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title>Список авторов</title>
+</head>
+<body>
+    <p id="main-menu"></p>
+
+    <h1>Список авторов</h1>
+
+    <table class="list">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p>
+        <a href="edit.html">Добавить нового автора</a>
+    </p>
+
+    <script>
+        $(function() {
+            $('#main-menu').load('/menu.html #menu1', 'html');
+            loadList();
+        });
+
+        function loadList() {
+            $.get('/api/author').done( function(authors) {
+                $('tbody').children().remove();
+                authors.forEach(function(author) {
+                    $('tbody').append(`
+                    <tr>
+                        <td>${author.authorId}</td>
+                        <td>${author.firstName}</td>
+                        <td>${author.lastName}</td>
+                        <td><a href="edit.html?id=${author.authorId}">Изменить</a></td>
+                        <td><a class="delete" href="#" id="${author.authorId}">Удалить</a></td>
+                    </tr>
+                    `)
+                });
+                $('.delete').on('click', function() {
+                    deleteAuthor(this.id);
+                    return false;
+                });
+            })
+        }
+
+        function deleteAuthor(id) {
+            if (confirm(`Подтвердите удаление автора ID ${id}`)) {
+                $.ajax(`/api/author/${id}`, {
+                    type: 'DELETE',
+                    success: function () {
+                        loadList();         // Обновление таблицы
+                    },
+                    error: function (jqXHR) {
+                        if ((jqXHR.status === 406 || jqXHR.status === 404) && (jqXHR.responseJSON)) {
+                            alert(jqXHR.responseJSON.message);
+                        } else {
+                            alert(`Ошибка, статус ${jqXHR.status}`)
+                        }
+                    }
+                })
+            }
+        }
+    </script>
+
+</body>
+</html>
