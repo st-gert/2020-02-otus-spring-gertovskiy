@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:if="${author.authorId}">Корректировка автора</title>
+    <title th:unless="${author.authorId}">Добавление автора</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input:read-only {
+            background: lightgray;
+        }
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h1 th:if="${author.authorId}">Корректировка автора</h1>
+    <h1 th:unless="${author.authorId}">Добавление автора</h1>
+
+    <form id="edit-form" th:action="@{/author/edit}" th:method="post" >
+        <div class="row">
+            <label for="id-input">ID:</label>
+            <input id="id-input" name="authorId" type="text" readonly="readonly" th:value="${author.authorId}" value="1"/>
+        </div>
+        <div class="row">
+            <label for="name-input">Имя:</label>
+            <input id="name-input" name="firstName" type="text" th:value="${author.firstName}" value="Павел"/>
+        </div>
+        <div class="row">
+            <label for="name2-input">Фамилия:</label>
+            <input id="name2-input" name="lastName" type="text" th:value="${author.lastName}" value="Чичиков"/>
+        </div>
+        <div class="row">
+            <input type="submit" value="Сохранить" />
+        </div>
+    </form>
+
+</body>
+</html>

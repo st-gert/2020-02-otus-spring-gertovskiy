@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:if="${book.bookId}">Корректировка книги</title>
+    <title th:unless="${book.bookId}">Добавление книги</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        .title {
+            width: 400px;
+        }
+        input:read-only {
+            background: lightgray;
+        }
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div th:insert="/menu :: menu"></div>
+
+<h1 th:if="${book.bookId}">Корректировка книги</h1>
+<h1 th:unless="${book.bookId}">Добавление книги</h1>
+
+<form th:action="@{/book/save}" th:method="post" >
+    <!-- ID -->
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" name="bookId" type="text" readonly="readonly" th:value="${book.bookId}" value="1"/>
+    </div>
+    <!-- Название -->
+    <div class="row">
+        <label for="name-input">Название:</label>
+        <input class="title" id="name-input" name="title" type="text" th:value="${book.title}" value="Книга"/>
+    </div>
+    <!-- Жанр -->
+    <div class="row">
+        <label for="genre-input">Жанр:</label>
+        <select id="genre-input" name="genreId">
+            <option th:each="genre : ${allGenres}" th:selected="${genre.equals(book.genre)}"
+                    th:value="${genre.genreId}" th:text="${genre.genreName}">Жанр
+            </option>
+        </select>
+    </div>
+    <!-- Авторы -->
+    <div>
+        <label for="authors-input">Авторы:</label>
+        <div id="authors-input" class="row" th:each="author : ${allAuthors}">
+            <input id="input_checkbox" type="checkbox" name="authorId" th:value="${author.authorId}"
+                   th:checked="${#lists.contains(book.authors, author)}"/>
+            <label class="title" for="input_checkbox" th:text="${author.getFullName()}">Автор</label>
+        </div>
+    </div>
+    <!-- Submit -->
+    <div class="row">
+        <input type="submit" value="Сохранить"/>
+    </div>
+</form>
+
+</body>
+</html>

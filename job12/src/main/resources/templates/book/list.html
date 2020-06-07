@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список книг</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        .list, .list td {
+            border: 1px solid lightgray;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h1>Список книг</h1>
+
+    <table class="list">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Жанр</th>
+            <th>Автор</th>
+            <th>Название</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="book : ${books}">
+            <td th:text="${book.bookId}">10</td>
+            <td th:text="${book.genreName}">Детектив</td>
+            <td th:text="${book.authorsString}">Детектив</td>
+            <td th:text="${book.title}">Детектив</td>
+            <td><a th:href="@{/review/list(id=${book.bookId})}" href="../review/list.html">Отзывы</a></td>
+            <td><a th:href="@{/book/edit(id=${book.bookId})}" href="edit.html">Изменить</a></td>
+            <td><a th:href="@{/book/delete(id=${book.bookId})}" href="list.html">Удалить</a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <form th:action="@{/book/add}" th:method="get" action="edit.html">
+        <input type="submit" value="Добавить" />
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div th:fragment="menu">
+        <a th:href="@{/login}">login</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+        <a th:href="@{/logout}">logout</a>
+        <br><br>
+        <a th:href="@{/book/list}" href="book/list.html">Список книг</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a th:href="@{/genre/list}" href="genre/list.html">Список жанров</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a th:href="@{/author/list}" href="author/list.html">Список авторов</a>
+        <br>
+        <a th:href="@{/book/list/genre}" href="book/genre.html">Список книг по жанру</a>
+        <br>
+        <a th:href="@{/book/list/authors}" href="book/authors.html">Список книг по автору</a>
+    </div>
+</body>
+</html>
