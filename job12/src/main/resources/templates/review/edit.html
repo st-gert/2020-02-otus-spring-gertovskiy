@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:if="${review.reviewId}">Корректировка отзыва</title>
+    <title th:unless="${review.reviewId}">Добавление отзыва</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input:read-only {
+            background: lightgray;
+        }
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h1 th:if="${review.reviewId}">Корректировка отзыва</h1>
+    <h1 th:unless="${review.reviewId}">Добавление отзыва</h1>
+
+    <form id="edit-form" th:action="@{/review/edit}" th:method="post" >
+        <div class="row">
+            <label for="id-input">ID:</label>
+            <input id="id-input" name="reviewId" type="text" readonly="readonly" th:value="${review.reviewId}" value="1"/>
+        </div>
+        <div class="row">
+            <label for="name-input">Отзыв:</label>
+            <input id="name-input" name="opinion" type="text" th:value="${review.opinion}" value="Детектив"/>
+        </div>
+        <div class="row">
+            <input type="hidden" name="bookId" th:value="${review.book.bookId}">
+            <input type="submit" value="Сохранить" />
+        </div>
+    </form>
+
+</body>
+</html>

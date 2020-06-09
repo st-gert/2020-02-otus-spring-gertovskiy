@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        h3 {
+            color: crimson;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h3 th:text="${title}">Заголовок</h3>
+
+    <p th:text="${message}">Сообщение</p>
+
+</body>
+</html>
