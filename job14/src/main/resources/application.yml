@@ -1,0 +1,25 @@
+spring:
+  main:
+    log-startup-info: false
+    banner-mode: off
+
+  data:
+    mongodb:
+#      uri: mongodb://localhost
+#      port: 27017
+      database: home_library
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    initialization-mode: always
+    schema: schema.sql
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+#    show-sql: true
+
+logging:
+  level:
+    ROOT: ERROR
