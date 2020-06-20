@@ -1,0 +1,29 @@
+spring:
+  main:
+    banner-mode: off
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    initialization-mode: always
+    sqlScriptEncoding: UTF-8
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    open-in-view: false
+
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    ROOT: INFO
+
+# для страницы error.html
+server:
+  error:
+    include-exception:  true
+    include-stacktrace: always

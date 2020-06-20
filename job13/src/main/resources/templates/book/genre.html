@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Жанр</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input:read-only {
+            background: lightgray;
+        }
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="/menu :: menu"></div>
+
+    <h1>Выбор жанра для списка книг</h1>
+
+    <form th:action="@{/book/list/genre}" th:method="post" action="list.html">
+        <div class="row">
+            <label for="genre-input">Наименование:</label>
+            <select id="genre-input" name="id">
+                <option th:each="genre : ${genres}"
+                        th:value="${genre.genreId}" th:text="${genre.genreName}">Жанр</option>
+            </select>
+        </div>
+        <div class="row">
+            <input type="submit" value="Выбрать" />
+        </div>
+    </form>
+
+</body>
+</html>
