@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <title>Список книг</title>
+</head>
+<body>
+    <p id="main-menu"></p>
+
+    <h1>Список книг</h1>
+
+    <table class="list">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Жанр</th>
+                <th>Автор</th>
+                <th>Название</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p>
+        <a href="edit.html">Добавить новую книгу</a>
+    </p>
+
+    <script src="script.js"></script>
+    <script>
+        $(function() {
+            $('#main-menu').load('/menu.html #menu1', 'html');
+            loadList();
+        });
+
+        function loadList() {
+            $.get('/api/book').done(function(books) {
+                loadTable(books);
+            });
+        }
+
+    </script>
+
+</body>
+</html>
