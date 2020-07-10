@@ -1,0 +1,55 @@
+spring:
+  main:
+    banner-mode: off
+
+  # Spring Data Rest
+  data:
+    rest:
+      base-path: /api
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    initialization-mode: always
+    sqlScriptEncoding: UTF-8
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    open-in-view: false
+
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  config: classpath:logback.xml
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, env, metrics
+  health:
+    defaults:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+
+
+info:
+  app:
+    name: Home Library Application
+    # Attention! The value of the version is relevant only after 'mvn package'
+    version: @project.version@
+  java:
+    version: ${java.version}
+    vendor: ${java.vendor}
+    vm-version: ${java.vm.version}
+    vm-vendor: ${java.vm.vendor}
